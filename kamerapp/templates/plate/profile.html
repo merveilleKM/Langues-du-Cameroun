@@ -1,0 +1,127 @@
+{% extends "plate/base.html" %}
+
+{% load static %}
+
+{% block dash %}
+
+<!-- Profile Section -->
+<div class="container mt-5">
+    <div class="profile-header">
+        <img src="https://via.placeholder.com/120" alt="Photo de profil">
+        <h2>Nom d'utilisateur</h2>
+        <p><i class="fas fa-envelope"></i> utilisateur@example.com</p>
+        <a href="#" class="btn btn-light">Modifier le Profil</a>
+    </div>
+
+    <!-- Progress Chart -->
+    <div class="progress-container">
+        <h3>Progression Générale</h3>
+        <canvas id="progressChart"></canvas>
+    </div>
+
+    <!-- Courses Section -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Mes Cours</h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <li class="list-group-item"><i class="fas fa-book"></i> Introduction au Fulfulde - 70%</li>
+                <li class="list-group-item"><i class="fas fa-language"></i> Initiation au Duala - 40%</li>
+                <li class="list-group-item"><i class="fas fa-book-open"></i> Apprendre le Bassa - 60%</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Language Preferences Section -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Préférences Linguistiques</h3>
+        </div>
+        <div class="card-body">
+            <form>
+                <div class="mb-3">
+                    <label for="preferredLanguages" class="form-label">Langues préférées :</label>
+                    <select multiple class="form-select" id="preferredLanguages">
+                        <option>Fulfulde</option>
+                        <option>Duala</option>
+                        <option>Bassa</option>
+                        <option>Français</option>
+                        <option>Anglais</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Sauvegarder les Préférences</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activity Section -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Activités Récentes</h3>
+        </div>
+        <div class="card-body">
+            <ul class="list-group">
+                <li class="list-group-item"><i class="fas fa-check-circle"></i> Terminé : Introduction au Fulfulde (15 Jan 2025)</li>
+                <li class="list-group-item"><i class="fas fa-pencil-alt"></i> Quiz répondu : Initiation au Duala (14 Jan 2025)</li>
+                <li class="list-group-item"><i class="fas fa-comment-dots"></i> Participation : Forum sur le Bassa (12 Jan 2025)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Additional Info Section -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Informations Supplémentaires</h3>
+        </div>
+        <div class="card-body">
+            <p>Optimisez votre expérience d'apprentissage en mettant à jour vos préférences linguistiques et en suivant vos progrès.</p>
+            <p>Besoin d'aide ? Contactez notre <a href="#">support technique</a>.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Data for the progress chart
+    const ctx = document.getElementById('progressChart').getContext('2d');
+    const progressChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Fulfulde', 'Duala', 'Bassa'],
+            datasets: [{
+                label: 'Progression (%)',
+                data: [70, 40, 60],
+                backgroundColor: '#FFB300',
+                borderColor: '#FF8C00',
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                },
+            },
+            responsive: true,
+            animation: {
+                animateScale: true,
+                duration: 1500,
+            }
+        }
+    });
+</script>
+
+{% endblock %} 
+
+
+
+
+

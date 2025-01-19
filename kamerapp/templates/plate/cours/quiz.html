@@ -1,0 +1,56 @@
+{% extends "plate/cours/base.html" %}
+
+{% load static %}
+
+{% block main %}
+
+<!-- Main Content -->
+<div class="col-md-9">
+    <!-- Dictionary Section -->
+<!-- Quiz Page -->
+<div class="container quiz-container">
+    <h3 class="text-center mb-4 text-warning">Choisissez un Quiz</h3>
+    <div class="row g-3">
+        <!-- Quiz Cards -->
+        <div class="col-md-2 col-sm-6">
+            <div class="quiz-card">
+                <h5>Quiz 1</h5>
+                <div class="points">Points obtenus : <strong>15</strong></div>
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <button class="btn btn-play" onclick="startQuiz(1)">Jouer</button>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6">
+            <div class="quiz-card">
+                <h5>Quiz 2</h5>
+                <div class="points">Points obtenus : <strong>10</strong></div>
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                </div>
+                <button class="btn btn-play" onclick="startQuiz(2)">Jouer</button>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6">
+            <div class="quiz-card">
+                <h5>Quiz 3</h5>
+                <div class="points">Points obtenus : <strong>5</strong></div>
+                <div class="stars">
+                    <i class="fas fa-star"></i>
+                    <i class="far fa-star"></i>
+                    <i class="far fa-star"></i>
+                </div>
+                <button class="btn btn-play" onclick="startQuiz(3)">Jouer</button>
+            </div>
+        </div>
+        <!-- Add more cards as needed -->
+    </div>
+</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,165 @@
+
+
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz - Langues Cameroun</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Couleurs principales */
+        :root {
+            --main-yellow: #FFB300;
+            --hover-yellow: #E6A000;
+            --gray-light: #F9F9F9;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --text-muted: #777777;
+            --shadow-light: rgba(0, 0, 0, 0.1);
+        }
+
+        /* Corps */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--gray-light);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* En-tête */
+        .header {
+            background: linear-gradient(to right, var(--main-yellow), var(--hover-yellow));
+            color: var(--white);
+            text-align: center;
+            padding: 40px 20px;
+            border-radius: 0 0 30px 30px;
+            box-shadow: 0 4px 10px var(--shadow-light);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            margin-bottom: 0;
+        }
+
+        /* Section Quiz */
+        .quiz-container {
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .question-card {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 4px 8px var(--shadow-light);
+        }
+
+        .question-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            margin-top: 20px;
+        }
+
+        .option {
+            background: var(--gray-light);
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .option:hover {
+            background-color: var(--main-yellow);
+            color: var(--white);
+        }
+
+        /* Progression */
+        .progress-bar {
+            background-color: var(--main-yellow);
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--white);
+            color: var(--text-muted);
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        footer a {
+            color: var(--main-yellow);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--hover-yellow);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <h1>Quiz Langues Cameroun</h1>
+    <p>Testez vos connaissances sur les langues locales !</p>
+</header>
+
+<!-- Quiz Section -->
+<div class="quiz-container">
+    <div class="progress mb-4">
+        <div class="progress-bar" role="progressbar" style="width: 30%;" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">Question 3 / 10</div>
+    </div>
+
+    <div class="question-card">
+        <h2>Quelle est la signification de "Mbote" en Duala ?</h2>
+
+        <div class="options">
+            <div class="option">A. Bonjour</div>
+            <div class="option">B. Merci</div>
+            <div class="option">C. Au revoir</div>
+            <div class="option">D. S'il te plaît</div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button class="btn btn-outline-secondary mr-2">Précédent</button>
+        <button class="btn btn-outline-primary">Suivant</button>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <p>&copy; 2025 Langues Cameroun. Tous droits réservés. <a href="#">Mentions légales</a>.</p>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    // Script pour animer les options
+    document.querySelectorAll('.option').forEach(option => {
+        option.addEventListener('click', () => {
+            document.querySelectorAll('.option').forEach(opt => opt.style.backgroundColor = "");
+            option.style.backgroundColor = "#FFB300";
+            option.style.color = "#FFFFFF";
+        });
+    });
+</script>
+</body>
+</html>

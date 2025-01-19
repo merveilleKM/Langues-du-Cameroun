@@ -1,0 +1,93 @@
+{% extends "plate/base.html" %}
+
+{% load static %}
+
+{% block dash %}
+
+<!-- Search Bar -->
+<div class="search-container">
+    <input type="text" class="form-control" placeholder="Rechercher un cours..." aria-label="Search">
+</div>
+
+<!-- Courses List -->
+<section class="course-list">
+    <div class="container">
+        <h2 class="text-center mb-4">Mes Cours 
+            <span>
+                <img src="{% static 'img/note.gif' %}" alt="Apprentissage" style="max-width: 50px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+            </span> 
+        </h2>
+        
+        <!-- Exemple de ligne de cours -->
+        <div class="course-item">
+            <img src="https://via.placeholder.com/120" alt="Fulfulde">
+            <div>
+                <h5>📘 Introduction au Fulfulde</h5>
+                <p>Apprenez les bases de cette langue fascinante, y compris la prononciation et la grammaire.</p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" data-progress="70" aria-valuemin="0" aria-valuemax="100">
+                        <span>70%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-item">
+            <img src="https://via.placeholder.com/120" alt="Duala">
+            <div>
+                <h5>🌍 Initiation au Duala</h5>
+                <p>Découvrez cette langue côtière avec des leçons sur la culture et des exercices pratiques.</p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" data-progress="40" aria-valuemin="0" aria-valuemax="100">
+                        <span>40%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="course-item">
+            <img src="https://via.placeholder.com/120" alt="Bassa">
+            <div>
+                <h5>🎉 Apprendre le Bassa</h5>
+                <p>Explorez cette langue dynamique avec des histoires traditionnelles et des exercices immersifs.</p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" data-progress="60" aria-valuemin="0" aria-valuemax="100">
+                        <span>60%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<script>
+    // Animation des progress bars
+    document.addEventListener("DOMContentLoaded", function () {
+        const progressBars = document.querySelectorAll(".progress-bar");
+        progressBars.forEach(bar => {
+            const progress = bar.getAttribute("data-progress");
+            bar.style.width = "0"; // Initial width
+            setTimeout(() => {
+                bar.style.width = progress + "%";
+                bar.querySelector("span").innerText = progress + "%"; // Met à jour le texte
+            }, 100); // Delay for smoother animation
+        });
+    });
+</script>
+
+<style>
+    .progress-bar {
+        transition: width 1.5s ease-in-out;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #fff;
+        font-weight: bold;
+    }
+    .progress-bar span {
+        position: absolute;
+    }
+</style>
+
+{% endblock %}
