@@ -1,0 +1,124 @@
+body{
+    background-color: beige;
+}
+span{
+	color: /*#cd5c5c*/  rgba(190, 150, 0, 1);
+}
+.navbar{
+	background-color: #d6cdcd;
+}
+.titre{
+	color: rgba(190, 150, 0, 1);
+	display: inline;
+	font-size: 150%;
+	text-decoration: underline;
+	text-decoration-color: rgba(190, 150, 0, 1);
+	text-decoration-thickness: 10px;
+}
+ h4 {
+	color: #636363;
+	text-align: center;
+	font-size: 26px;
+	margin-top: 0;
+}
+.formulaire {
+	color: #999;
+	border-radius: 1px;
+	margin-bottom: 15px;
+	background: #fff;
+	border: 1px solid #f3f3f3;
+	box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+	padding: 25px;
+}
+.form-group {
+	margin-bottom: 20px;
+}
+label {
+	font-weight: normal;
+	font-size: 13px;
+}
+ input {
+	min-height: 50px;
+	padding-left: 5px;
+	box-shadow: none !important;
+	border-width: 0 0 1px 0;
+	border-radius: 0;
+}
+ .form-control:focus {
+	border-color: #ccc;
+}
+ .input-group-addon {
+	max-width: 42px;
+	min-width: 42px;
+	text-align: center;
+	background: none;
+	border-bottom: 1px solid #ced4da;
+	padding-right: 5px;
+	border-radius: 0;
+}
+.lien:hover{
+	text-decoration: none;
+	color: /*#cd5c5c*/ rgba(190, 150, 0, 1);
+}
+ a .btn, a .btn:active {        
+	font-size: 16px;
+	font-weight: bold;
+	/*background: #19aa8d !important;*/
+	border-radius: 3px;
+	border: none;
+    height: 40px;
+}
+.connect a{
+	text-decoration: none;
+	color: white;
+	border: none;
+}
+.connect a:hover{
+	text-decoration: none;
+	color: white;
+	border: none;
+}
+.connect {
+	/*background: #179b81 !important/
+	background: #806b4b !important;
+	background: #87ceeb !important;*/
+	background: /*#cd5c5c*/  rgba(190, 150, 0, 1) !important;
+    border: none;
+}
+
+.connect:hover{
+    border: none;
+}
+
+ .hint-text {
+	text-align: center;
+	padding-top: 5px;
+	font-size: 13px;
+}
+.modal-footer {
+	color: #999;
+	border-color: #dee4e7;
+	text-align: center;
+	margin: 0 -25px -25px;
+	font-size: 13px;
+	justify-content: center;
+}
+
+.fa {
+	font-size: 21px;
+	position: relative;
+	top: 6px;
+}
+.trigger-btn {
+	display: inline-block;
+	margin: 100px auto;
+}
+.formulaire {
+    width: 350px;
+    height: auto;
+    position: absolute;
+    left: 50%;
+    top: 40%;
+    transform: translate(-50%, -50%);
+    -webkit-transform: translate(-50%, -50%);
+}

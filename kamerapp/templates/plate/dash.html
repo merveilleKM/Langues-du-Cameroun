@@ -1,0 +1,49 @@
+{% extends "plate/base.html" %}
+
+{% load static %}
+
+{% block dash %}
+<!-- Hero Section -->
+<div class="container hero">
+    <div>
+        <img src="{% static 'img/lesson.gif' %} " alt="apprenant">
+    </div>
+    <div>
+        <h1>Bienvenue, [Nom de l'utilisateur] 🎉</h1>
+        <p>Explorez les langues traditionnelles du Cameroun à votre propre rythme.</p>
+        <a href="cours" class="btn btn-main">Accéder à mes cours</a>
+    </div>
+</div>
+
+<hr class="shadow rounded">
+
+<!-- Info Section -->
+<div class="container text-center">
+    <p>Voici vos dernières étapes d'apprentissage et ce qui vous attend :</p>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="link-card">
+                    <h5>📘 Cours en cours</h5>
+                    <p>Continuez d'apprendre [Nom du cours]. Vous êtes presque à la fin !</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="link-card">
+                    <h5>📝 Quiz à venir</h5>
+                    <p>Votre prochain quiz est sur [sujet]. Préparez-vous !</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="link-card">
+                    <h5>🌍 Votre communauté</h5>
+                    <p>Partagez vos progrès avec d'autres apprenants !</p>
+                    <a href="communaute" class="btn btn-main">Voir la communauté</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock  %}
