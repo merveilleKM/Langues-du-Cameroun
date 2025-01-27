@@ -1,22 +1,12 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from kamerapp import views
 from django.conf.urls.static import static
 from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.accueil, name="accueil"),
-    path('signin', views.signin),
-    path('signup', views.signup),
-    path('deconnect', views.deconnect),
-    path('cours', views.cours),
-    path('communaute', views.communaute),
-    path('dashboard', views.dashboard),
-    path('profil', views.profil),
-    path('detail', views.detail),
-    path('dico', views.dico),
-    path('quiz', views.quiz),
+    path('', include('kamerapp.urls')),
 ]
 
 if settings.DEBUG:

@@ -18,12 +18,18 @@
             </span> 
         </h2>
         
-        <!-- Exemple de ligne de cours -->
+       <!-- Liste des cours -->
+    <div class="course-item-container">
+        {% for cour in cours %}
         <div class="course-item">
-            <img src="https://via.placeholder.com/120" alt="Fulfulde">
-            <div>
-                <h5>📘 Introduction au Fulfulde</h5>
-                <p>Apprenez les bases de cette langue fascinante, y compris la prononciation et la grammaire.</p>
+            <a href="{% url 'detail' cour.slug %}" class="course-link">
+                <img src="{{ cour.image.url }}" alt="{{ cour.nomlangue }}" class="course-image">
+            </a>
+            <div class="course-details">
+                <a href="{% url 'detail' cour.slug %}" class="course-title-link">
+                    <h5>📘 {{ cour.nomlangue }}</h5>
+                </a>
+                <p>{{ cour.description }}</p>
                 <div class="progress">
                     <div class="progress-bar" role="progressbar" data-progress="70" aria-valuemin="0" aria-valuemax="100">
                         <span>70%</span>
@@ -31,32 +37,9 @@
                 </div>
             </div>
         </div>
-
-        <div class="course-item">
-            <img src="https://via.placeholder.com/120" alt="Duala">
-            <div>
-                <h5>🌍 Initiation au Duala</h5>
-                <p>Découvrez cette langue côtière avec des leçons sur la culture et des exercices pratiques.</p>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" data-progress="40" aria-valuemin="0" aria-valuemax="100">
-                        <span>40%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="course-item">
-            <img src="https://via.placeholder.com/120" alt="Bassa">
-            <div>
-                <h5>🎉 Apprendre le Bassa</h5>
-                <p>Explorez cette langue dynamique avec des histoires traditionnelles et des exercices immersifs.</p>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" data-progress="60" aria-valuemin="0" aria-valuemax="100">
-                        <span>60%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        {% endfor %}
+    </div>
+    
 
     </div>
 </section>
@@ -88,6 +71,19 @@
     .progress-bar span {
         position: absolute;
     }
+
+    .course-item a {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+    .course-item a:hover {
+        color: #ff8c00;
+        font-weight: bold;
+    }
+    
 </style>
+
+
 
 {% endblock %}

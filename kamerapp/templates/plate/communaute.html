@@ -12,11 +12,127 @@
 
 <!-- Search Bar -->
 <div class="search-bar">
-    <input type="text" class="form-control" placeholder="Rechercher un sujet ou un post...">
+    <form method="GET" action="{% url 'search' %}" class="d-flex align-items-center">
+        <input type="text" name="q" class="form-control me-2" placeholder="Rechercher un sujet ou un post..." 
+            value="{{ query|default:'' }}"
+        >
+        <button type="submit" class="btn btn-main p-2">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
+</div>
+
+
+<!-- Add New Post Button -->
+<div class="text-center mt-4">
+    <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#addNewPostModal">Créer un Nouveau Sujet</button>
+</div>
+
+<!-- Modal for Choosing Post Type -->
+<div class="modal fade" id="addNewPostModal" tabindex="-1" aria-labelledby="addNewPostModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addNewPostModalLabel">Créer un Nouveau Sujet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <p>Que souhaitez-vous faire ?</p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'publier' %}" class="btn btn-secondary">Publier un Document</a>
+                    <a href="{% url 'commentaire' %}" class="btn btn-secondary">Poser une Question</a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Annuler</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Community Section -->
 <section class="community-section mt-4">
+    <div class="container">
+        <h2 class="text-center mb-4">Dernières Activités</h2>
+
+
+        <div class="container mt-4 ">
+            {% for notification in notifications %}
+                <div class="post shadow mb-4">
+                    <h5><i class="fas fa-comment-dots icon"></i>💬 Discussion : {{ notification.title }}</h5>
+                    <p>{{ notification.message }}</p>
+                    <div class="m-2 cd-flex justify-content-between align-items-center mt-3">
+                        <!-- Liste des commentaires -->
+                        <div class="comment-section">
+                            <h6>Commentaires :</h6>
+                            <ul>
+                                {% for comment in notification.comments.all %}
+                                <li><strong>{{ comment.username }}</strong> : {{ comment.message }}</li>
+                                {% empty %}
+                                <li>Aucun commentaire pour l'instant.</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <!-- Ajouter un commentaire -->
+                        <form method="POST" action="{% url 'add_comment' notification.id %}">
+                            {% csrf_token %}
+                            <div class="comment-input mt-3">
+                                <input type="text" name="message" placeholder="Ajouter un commentaire..." class="form-control">
+                                <button type="submit" class="btn btn-main mt-2">Envoyer</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="container mt-4">
+            {% for ressource in ressources %}
+                <div class="post shadow mb-4">
+                    <h5><i class="fas fa-file-alt icon"></i>📚 Ressource : {{ ressource.titre }}</h5>
+                    <p>{{ ressource.description }}</p>
+                    <a href="{{ ressource.fichier.url }}" class="btn btn-main">Télécharger</a>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <small class="text-muted">Publié par {{ ressource.username.username }}</small>
+                        <small class="text-muted">{{ ressource.timestamp }}</small>
+                    </div>
+                </div>
+            {% empty %}
+                <p>Aucun document partagé pour l'instant.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+
+
+{% comment %} {% extends "plate/base.html" %}
+
+{% load static %}
+
+{% block dash %}
+
+<!-- Header -->
+<header class="header">
+    <h1>Bienvenue dans la Communauté</h1>
+    <p>Partagez vos idées, posez vos questions et apprenez ensemble.</p>
+</header>
+
+<!-- Search Bar -->
+<div class="search-bar">
+    <input type="text" class="form-control" placeholder="Rechercher un sujet ou un post...">
+</div>
+
+<!-- Add New Post Button -->
+<div class="text-center mt-4">
+    <button class="btn btn-main">Créer un Nouveau Sujet</button>
+</div>
+
+<!-- Community Section -->
+<section class="community-section mt-4">
+
     <div class="container">
         <h2 class="text-center mb-4">Dernières Activités</h2>
 
@@ -76,4 +192,4 @@
     </div>
 </section>
 
-{% endblock %}
+{% endblock %} {% endcomment %}

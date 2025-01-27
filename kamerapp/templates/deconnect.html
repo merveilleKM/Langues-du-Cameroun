@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,67 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Déconnexion - Langues Cameroun</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .logout-container {
-            background: #fff;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            text-align: center;
-            max-width: 400px;
-            width: 100%;
-        }
-
-        .logout-container h1 {
-            font-size: 1.8rem;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .logout-container p {
-            color: #666;
-            font-size: 1rem;
-            margin-bottom: 30px;
-        }
-
-        .btn-main {
-            background-color: #FFB300;
-            color: #fff;
-            border: none;
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-main:hover {
-            background-color: #E6A000;
-        }
-
-        .btn-secondary {
-            background-color: #ddd;
-            color: #333;
-            border: none;
-            border-radius: 25px;
-            padding: 10px 20px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background-color: #bbb;
-        }
-    </style>
+    <link rel="stylesheet" href="{% static 'css/deconnect.css' %} ">
 </head>
 <body>
 

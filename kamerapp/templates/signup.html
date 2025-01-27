@@ -18,11 +18,21 @@
         <p>Rejoignez-nous et commencez votre apprentissage des langues camerounaises.</p>
     </div>
     <form action="signup" method="POST">
+{% if messages %}
+    <div class="alert-messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
         {% csrf_token %}
         <!-- Nom complet -->
         <div class="mb-3">
-            <label for="fullname" class="form-label">Nom complet</label>
-            <input type="text" class="form-control" id="fullname" name="name" placeholder="Entrez votre nom complet" required>
+            <label for="username" class="form-label">Nom complet</label>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Entrez votre nom complet" required>
         </div>
 
         <!-- Email -->
@@ -33,8 +43,8 @@
 
         <!-- Numéro de téléphone -->
         <div class="mb-3">
-            <label for="phone" class="form-label">Numéro de téléphone</label>
-            <input type="tel" class="form-control" id="phone" name="phone" placeholder="Entrez votre numéro de téléphone" required>
+            <label for="tel" class="form-label">Numéro de téléphone</label>
+            <input type="tel" class="form-control" id="tel" name="tel" placeholder="Entrez votre numéro de téléphone" required>
         </div>
 
         <!-- Mot de passe -->
@@ -59,13 +69,11 @@
         <!-- Langue à apprendre -->
         <div class="mb-3">
             <label for="learningLanguage" class="form-label">Langue que vous souhaitez apprendre</label>
-            <select class="form-control" id="learningLanguage" name="learningLanguage" required>
+            <select class="form-control" id="learningLanguage" name="langue" required>
                 <option value="">-- Sélectionnez une langue --</option>
-                <option value="Fulfulde">Fulfulde</option>
-                <option value="Duala">Duala</option>
-                <option value="Bassa">Bassa</option>
+                <option value="Ngiemboon">Ngiemboon</option>
                 <option value="Ewondo">Ewondo</option>
-                <option value="Autre">Autre</option>
+                <option value="Bassa">Bassa</option>
             </select>
         </div>
 

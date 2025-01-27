@@ -17,12 +17,23 @@
         <h1>Connexion</h1>
         <p>Accédez à votre compte pour continuer.</p>
     </div>
-    <form action="cours" method="POST">
+{% if messages %}
+    <div class="alert-messages">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+
+    <form action="signin" method="POST">
         {% csrf_token %}
         <!-- Email -->
         <div class="mb-3">
-            <label for="email" class="form-label">Adresse e-mail</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="Entrez votre e-mail" required>
+            <label for="email" class="form-label">Adresse e-mail ou nom utilisateur</label>
+            <input type="text" class="form-control" id="email" name="email" placeholder="Entrez votre e-mail ou le nom utilisateur" required>
         </div>
 
         <!-- Mot de passe -->

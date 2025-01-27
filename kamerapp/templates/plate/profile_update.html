@@ -1,0 +1,76 @@
+{% extends "plate/base.html" %}
+{% block dash %}
+
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h3 class="mb-0">Modifier le Profil</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Section Profil -->
+                <div class="col-md-4 text-center">
+                    <div class="profile-header mb-4">
+                        <!-- Affichage de l'image de profil -->
+                        <img src="{{ user.image_user.url }}" alt="Photo de profil" class="img-thumbnail rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                        <h4 class="mt-3">{{ user.username }}</h4>
+                        <p class="text-muted"><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                    </div>
+                </div>
+                <!-- Formulaire de Modification -->
+                <div class="col-md-8">
+                    <form method="POST" enctype="multipart/form-data" class="p-3">
+                        {% csrf_token %}
+                        <!-- Informations utilisateur -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Nom d'utilisateur</label>
+                            {{ user_form.username }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            {{ user_form.email }}
+                        </div>
+                        <!-- Détails du profil -->
+                        <div class="mb-3">
+                            <label for="image_user" class="form-label">Photo de profil</label>
+                            {{ profile_form.image_user }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="tel" class="form-label">Téléphone</label>
+                            {{ profile_form.tel }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="sexe" class="form-label">Sexe</label>
+                            {{ profile_form.sexe }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="langue" class="form-label">Langue d'apprentissage</label>
+                            {{ profile_form.langue }}
+                        </div>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Sauvegarder les Modifications
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-header img {
+        border: 3px solid #ddd;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .btn-light {
+        background-color: #f8f9fa;
+        border: 1px solid #ddd;
+        color: #333;
+        transition: background-color 0.2s ease-in-out;
+    }
+    .btn-light:hover {
+        background-color: #e2e6ea;
+    }
+</style>
+
+{% endblock %}

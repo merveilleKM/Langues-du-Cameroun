@@ -1,5 +1,40 @@
 {% extends "plate/cours/base.html" %}
 
+{% block main %}
+
+<!-- Main Content -->
+<div class="col-md-9">
+    <div class="container mt-3">
+        <h2 class="text-center text-warning" id="details">Introduction à la langue {{ cours.langue }}</h2>
+        <p>{{ langue.description }}</p>
+
+        <!-- Modules -->
+        {% for det in dets %}
+        <div class="det">
+            <h3 class="text-center text-primary">{{ det.titre }}</h3>
+
+            <!-- Chapitres -->
+            {% for chapitre in det.chapitres.all %}
+            <div class="chapter">
+                <h4>{{ chapitre.titre }}</h4>
+
+                <!-- Leçons -->
+                {% for lecon in chapitre.lecons.all %}
+                <div class="lesson">{{ lecon.titre }}</div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% comment %} {% extends "plate/cours/base.html" %}
+
 {% load static %}
 
 {% block main %}
@@ -8,7 +43,7 @@
 <div class="col-md-9">
     <!-- Course Section -->
     <div class="container mt-3">
-        <h2 class="text-center text-warning" id="details">Introduction au Fulfulde</h2>
+        <h2 class="text-center text-warning" id="details">Introduction au</h2>
 
         <!-- Modules -->
         <div class="module">
@@ -41,4 +76,4 @@
     </div>
 </div>
 
-{% endblock %}
+{% endblock %} {% endcomment %}
