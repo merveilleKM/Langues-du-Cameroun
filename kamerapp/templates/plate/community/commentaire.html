@@ -1,0 +1,23 @@
+{% extends "plate/base.html" %}
+
+{% block dash %}
+    <header class="header">
+        <h1>Poser une Question</h1>
+        <p>Demandez à la communauté de vous aider.</p>
+    </header>
+
+    <section class="container mt-4">
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="question_title">Titre de la Question</label>
+                <input type="text" name="title" class="form-control" placeholder="Entrez le titre de votre question" required>
+            </div>
+            <div class="form-group mt-3">
+                <label for="question_body">Détails de la Question</label>
+                <textarea name="message" class="form-control" rows="5" placeholder="Décrivez votre question..." required></textarea>
+            </div>
+            <button type="submit" class="btn btn-main mt-3">Poser la Question</button>
+        </form>
+    </section>
+{% endblock %}
