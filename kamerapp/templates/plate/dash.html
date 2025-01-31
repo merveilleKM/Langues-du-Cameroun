@@ -11,7 +11,9 @@
     <div>
         <h1>Bienvenue, {{user.username}} 🎉</h1>
         <p>Explorez les langues traditionnelles du Cameroun à votre propre rythme.</p>
-        <a href="cours" class="btn btn-main">Accéder à mes cours</a>
+        {%for cour in cours%}
+        <a href="{% url 'detail' cour.slug %}" class="btn btn-main">Accéder à mes cours</a>
+        {%endfor%}
     </div>
 </div>
 
@@ -26,7 +28,7 @@
             <div class="col-md-4 mb-4">
                 <div class="link-card">
                     <h5>📘 Cours en cours</h5>
-                    <p>Continuez d'apprendre [Nom du cours]. Vous êtes presque à la fin !</p>
+                    <p>Continuez d'apprendre la langue {{user.langue}}. Vous êtes presque à la fin !</p>
                 </div>
             </div>
             <div class="col-md-4 mb-4">

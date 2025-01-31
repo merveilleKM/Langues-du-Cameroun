@@ -1,0 +1,303 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linguakamer</title>
+    
+    <link rel="shortcut icon" href="{% static 'img/icon.jpg' %} " type="">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Styles CSS -->
+<style>
+    :root {
+        --main-yellow: #FFB300;
+        --hover-yellow: #E6A000;
+        --gray-light: #F9F9F9;
+        --white: #FFFFFF;
+        --text-dark: #333333;
+        --text-muted: #777777;
+        --shadow-light: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+        font-family: 'Arial', sans-serif;
+        background-color: var(--gray-light);
+        color: var(--text-dark);
+        margin: 0;
+        padding: 0;
+    }
+
+    .header {
+        background: linear-gradient(to right, var(--main-yellow), var(--hover-yellow));
+        color: var(--white);
+        text-align: center;
+        padding: 40px 20px;
+        border-radius: 0 0 30px 30px;
+        box-shadow: 0 4px 10px var(--shadow-light);
+    }
+
+    .header h1 {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .header p {
+        font-size: 1.2rem;
+        margin-bottom: 0;
+    }
+
+    .quiz-container {
+        padding: 40px 20px;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .question-card {
+        background: var(--white);
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 4px 8px var(--shadow-light);
+    }
+
+    .question-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+    }
+
+    .options {
+        margin-top: 20px;
+    }
+
+    .option {
+        background: var(--gray-light);
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .option:hover {
+        background-color: var(--main-yellow);
+        color: var(--white);
+    }
+
+    .option.selected {
+        background-color: #FFB300;
+        color: white;
+    }
+    
+    .progress-bar {
+        background-color: var(--main-yellow);
+    }
+
+    button {
+        background: var(--gray-light);
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background-color: var(--hover-yellow);
+        color: var(--white);
+    }
+
+    footer {
+        background-color: var(--white);
+        color: var(--text-muted);
+        text-align: center;
+        padding: 20px;
+        border-top: 1px solid #ddd;
+    }
+
+    footer a {
+        color: var(--main-yellow);
+        text-decoration: none;
+    }
+
+    footer a:hover {
+        color: var(--hover-yellow);
+    }
+</style>
+
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <h1>{{ quiz.title }}</h1>
+    <p>Testez vos connaissances sur les langues locales !</p>
+</header>
+
+<!-- Quiz Section -->
+<div class="quiz-container">
+    <div class="row">
+        <div class="col-lg-3">
+            <img src="{{ questions.0.image_question.url }}" alt="Image de la question" class="img-fluid">
+        </div>
+
+        <div class="col-lg-9">
+            <!-- Barre de progression -->
+            <div class="progress mb-4">
+                <div class="progress-bar" role="progressbar" id="progress-bar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">Question 1 / {{ questions|length }}</div>
+            </div>
+
+            <!-- Boucle sur les questions -->
+            {% for question in questions %}
+                <div class="question-card" id="question-{{ forloop.counter }}" style="display: none;">
+                    <h2>{{ question.text }}</h2>
+
+                    <!-- Boucle sur les réponses -->
+                    <div class="options">
+                        {% for answer in question.answers.all %}
+                            <div class="option" data-question-id="{{ question.id }}" data-answer-id="{{ answer.id }}">
+                                {{ answer.text }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Boutons de navigation -->
+            <div class="text-center mt-4">
+                <button class="btn btn-outline-warning mr-2" id="prev-btn">Précédent</button>
+                <button class="btn btn-outline-primary" id="next-btn">Suivant</button>
+                <button class="btn btn-success" id="finish-btn" disabled>Fini</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer>
+    <p>&copy; 2025 Langues Cameroun. Tous droits réservés. <a href="#">Mentions légales</a>.</p>
+</footer>
+
+ <!-- Scripts JavaScript -->
+<script>
+   // Variables globales
+    const questions = document.querySelectorAll('.question-card');
+    const progressBar = document.getElementById('progress-bar');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const finishBtn = document.getElementById('finish-btn');
+    let currentQuestion = 0;
+    let selectedAnswers = {}; // Stocke les réponses sélectionnées
+
+    // Sélection d'une option
+    document.querySelectorAll('.option').forEach(option => {
+        option.addEventListener('click', function () {
+            let questionId = this.getAttribute('data-question-id');
+            let answerId = this.getAttribute('data-answer-id');
+
+        // Sauvegarder la réponse sélectionnée
+        selectedAnswers[questionId] = answerId;
+
+        // Réinitialiser les options de cette question
+        document.querySelectorAll(`.option[data-question-id="${questionId}"]`).forEach(opt => {
+            opt.classList.remove('selected'); // Supprime la classe 'selected'
+        });
+
+        // Ajouter la classe 'selected' à l'option choisie
+        this.classList.add('selected');
+
+        // Vérifier si toutes les questions ont une réponse sélectionnée pour activer "Fini"
+        checkFinishButton();
+        });
+    });
+
+    // Fonction pour afficher une question et restaurer la sélection
+    function showQuestion(index) {
+        questions.forEach((question, i) => {
+            question.style.display = i === index ? 'block' : 'none';
+        });
+
+        // Mettre à jour la barre de progression
+        const progress = ((index + 1) / questions.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        progressBar.setAttribute('aria-valuenow', progress);
+        progressBar.textContent = `Question ${index + 1} / ${questions.length}`;
+
+        // Restaurer la sélection de la question actuelle
+        let currentQuestionId = questions[index].getAttribute('id').split('-')[1];
+        if (selectedAnswers[currentQuestionId]) {
+            let selectedOption = document.querySelector(`.option[data-question-id="${currentQuestionId}"][data-answer-id="${selectedAnswers[currentQuestionId]}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected'); // Restaurer la classe 'selected'
+            }
+        }
+
+        // Activer/désactiver les boutons "Précédent" et "Suivant"
+        prevBtn.disabled = index === 0;
+        nextBtn.disabled = index === questions.length - 1;
+
+        // Vérifier si le bouton "Fini" doit être activé
+        checkFinishButton();
+    }
+
+    // Vérifie si toutes les questions ont une réponse sélectionnée
+    function checkFinishButton() {
+        let allAnswered = Object.keys(selectedAnswers).length === questions.length;
+        finishBtn.disabled = !allAnswered; // Active "Fini" seulement si toutes les questions ont été répondues
+    }
+
+    // Navigation vers la question précédente
+    prevBtn.addEventListener('click', () => {
+        if (currentQuestion > 0) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        }
+    });
+
+    // Navigation vers la question suivante
+    nextBtn.addEventListener('click', () => {
+        if (currentQuestion < questions.length - 1) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+        }
+    });
+
+    // Gestion du bouton "Fini"
+    finishBtn.addEventListener('click', () => {
+        document.querySelector('.quiz-container').innerHTML = `
+            <div class="text-center">
+                <h2>Félicitations ! 🎉</h2>
+                <p>Vous avez terminé le quiz.</p>
+                <a href="{% url 'quiz' quiz.slug %}" class="btn btn-primary">Retour à l'accueil</a>
+            </div>
+        `;
+    });
+
+    // Appliquer le style CSS pour l'option sélectionnée
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .option.selected {
+            background-color: #FFB300 !important;
+            color: white !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Afficher la première question au chargement
+    showQuestion(currentQuestion);
+
+</script>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.4.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

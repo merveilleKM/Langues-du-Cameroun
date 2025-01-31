@@ -1,13 +1,12 @@
 {% extends "plate/cours/base.html" %}
 
-{% load static %}
-
 {% block main %}
 
 <div class="col-md-9 mt-3">
     <div class="container">
         <h2 class="text-center">Traducteur</h2>
         <div class="mot">
+            <!-- Formulaire de recherche -->
             <div class="row my-4">
                 <div class="col bg-light p-3">
                     <form class="d-flex" role="search" method="get" action="">
@@ -15,14 +14,8 @@
     
                         <label for="sens" class="me-2">Sens :</label>
                         <select name="sens" id="sens" class="form-control me-2" required>
-                            <option value="fr-to-trad">Français vers Langue Traditionnelle</option>
-                            <option value="trad-to-fr">Langue Traditionnelle vers Français</option>
-                        </select>
-    
-                        <label for="langue" class="me-2">Langue :</label>
-                        <select name="langue" id="langue" class="form-control me-2" required>
-                            <option value="Ewondo">{{user.langue}}</option>
-                            {% comment %} <option value="Ngiemboon">Ngiemboon</option> {% endcomment %}
+                            <option value="fr-to-trad">Français vers {{ cours.langue.nomlangue }}</option>
+                            <option value="trad-to-fr">{{ cours.langue.nomlangue }} vers Français</option>
                         </select>
     
                         <button class="btn btn-outline-success p-3" type="submit">Traduire</button>
@@ -30,28 +23,43 @@
                 </div>
             </div>
     
+            <!-- Résultat de la recherche -->
             <div class="row my-4">
                 <div class="col bg-light p-3 h-auto">
                     <p><strong>Résultat</strong></p>
                     {% if result %}
-                        <ul>
-                            {% if sens == 'fr-to-trad' %}
-                                <li>{{ result.mot_francais }} se traduit en <strong>{{ result.mot_traditionnel }}</strong> ({{ result.langue_traditionnelle }})</li>
-                            {% elif sens == 'trad-to-fr' %}
-                                <li>{{ result.mot_traditionnel }} se traduit en <strong>{{ result.mot_francais }}</strong></li>
-                            {% endif %}
-                        </ul>
-                    {% else %}
-                        <p>Aucune traduction trouvée pour le mot "{{ mot }}" dans la langue "{{ user.langue }}".</p>
-                    {% endif %}
+    <ul>
+        {% if sens == 'fr-to-trad' %}
+            <li>{{ result.mot_francais }} se traduit en <strong>{{ result.mot_traditionnel }}</strong></li>
+        {% elif sens == 'trad-to-fr' %}
+            <li>{{ result.mot_traditionnel }} se traduit en <strong>{{ result.mot_francais }}</strong></li>
+        {% endif %}
+    </ul>
+
+    <!-- Affichage de l'image -->
+    {% if result.image %}
+        <img src="{{ result.image.url }}" alt="Illustration de {{ result.mot_francais }}" width="70" class="mx-5">
+    {% endif %}
+
+    <!-- Lecture de l'audio -->
+    {% if result.audio %}
+        <audio controls>
+            <source src="{{ result.audio.url }}" type="audio/mpeg">
+            Votre navigateur ne supporte pas l'élément audio.
+        </audio>
+    {% endif %}
+{% else %}
+    <p>Aucune traduction trouvée pour "{{ mot }}" dans la langue "{{ cours.langue.nomlangue }}".</p>
+{% endif %}
+
                 </div>
             </div>
         </div>
-    
-        <!-- Clavier Virtuel -->
-        <div id="keyboard" class="my-3">
-            <div class="simple-keyboard"></div>
-        </div>
+    </div>
+
+    <!-- Clavier Virtuel -->
+    <div id="keyboard" class="my-3">
+        <div class="simple-keyboard"></div>
     </div>
 </div>
 
@@ -88,26 +96,5 @@
         });
     });
 </script>
-
-<!-- Main Content -->
-{% comment %} <div class="col-md-9">
-    <!-- Dictionary Section -->
-<div class="container mt-5">
-    <h2>Dictionnaire</h2>
-    <form>
-        <div class="mb-3">
-            <label for="word" class="form-label">Entrez un mot à traduire :</label>
-            <input type="text" class="form-control" id="word" placeholder="Mot en Français">
-        </div>
-        <button type="submit" class="btn btn-primary">Traduire</button>
-    </form>
-    <div class="mt-3">
-        <h4>Traduction:</h4>
-        <p><strong>Bonjour :</strong> Ndewo</p>
-        <p><strong>Merci :</strong> A jara</p>
-        <p><strong>Comment ça va? :</strong> No mbada?</p>
-    </div>
-</div>
-</div> {% endcomment %}
 
 {% endblock %}

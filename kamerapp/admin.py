@@ -12,6 +12,17 @@ admin.site.register(Leçon)
 admin.site.register(Chapitre)
 admin.site.register(Question)
 admin.site.register(Quiz)
+class AnswerInline(admin.TabularInline):
+    model = Answer
+    extra = 3  # Ajoute trois réponses par défaut
+
+class QuestionAdmin(admin.ModelAdmin):
+    list_display = ('text', 'quiz', 'question_type')
+    inlines = [AnswerInline]
+
+class QuizAdmin(admin.ModelAdmin):
+    list_display = ('title', 'level')
+
 admin.site.register(UserScore)
 admin.site.register(Notification)
 admin.site.register(Answer)

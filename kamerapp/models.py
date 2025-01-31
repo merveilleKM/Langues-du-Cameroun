@@ -16,13 +16,29 @@ class Langue(models.Model):
     def __str__(self):
         return self.nomlangue
 
+class Cours(models.Model):
+    titre = models.CharField(max_length=100, default="vide")
+    langue = models.ForeignKey(Langue, related_name='cours',on_delete=models.CASCADE, null=True)
+    slug = models.SlugField(unique=True, blank=True, default="Ewondo")
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.titre)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.titre} ({self.langue})"  # Retourne une chaîne formatée
+
+
 class CustomUser(AbstractUser):
     tel = models.CharField(max_length=15, blank=True)
     langue = models.CharField(max_length=30, blank=True)
-    langues = models.ForeignKey(Langue, related_name='langues',on_delete=models.CASCADE, default=None, null=True)
+    langues = models.ManyToManyField(Langue, blank=True, related_name="utilisateurs")
     aire = models.CharField(max_length=50, blank=True, default="vide")
     is_teacher = models.BooleanField(default=False)
-    image_user = models.ImageField(upload_to='profil/', null=True, max_length=None)
+    image_user = models.ImageField(upload_to='profil/', default='profil/utilisateur.png',  # Chemin vers l'image par défaut
+        null=True,blank=True,max_length=None)
+    cours_suivis = models.ManyToManyField(Cours, blank=True, related_name="utilisateurs")
     sexe = models.CharField(max_length=10, choices=[
         ('male', 'Homme'),
         ('female', 'Femme'),
@@ -31,19 +47,7 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
     
-class Cours(models.Model):
-    titre = models.CharField(max_length=100, default="vide")
-    langue = models.ForeignKey(Langue, related_name='langue',on_delete=models.CASCADE, null=True)
-    slug = models.SlugField(unique=True, blank=True, default="Ewondo")
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.langue)
-        super().save(*args, **kwargs)
-
-    def __str__(self):
-        return self.titre  # Retourne le titre du cours
-    
 class Chapitre(models.Model):
     titre = models.CharField(max_length=100, default="vide")
     cours = models.ForeignKey(Cours, related_name='chapitres',on_delete=models.CASCADE, null=True)
@@ -53,7 +57,7 @@ class Chapitre(models.Model):
     
 class Exercice(models.Model):
     titre = models.CharField(max_length=100, default="vide")
-    cours = models.ForeignKey(Cours, related_name='exercices',on_delete=models.CASCADE, default='vide')
+    cours = models.ForeignKey(Cours, related_name='exercices',on_delete=models.CASCADE, null=True)
     contenu = models.TextField(default="vide")
     réponse = models.TextField(default="vide")
 
@@ -76,12 +80,16 @@ class Progression(models.Model):
 
 class Dictionnaire(models.Model):
     mot_francais = models.CharField(max_length=100, default=None)
-    mot_traditionnel = models.ForeignKey(Langue, related_name='lang',on_delete=models.CASCADE, null=True)
+    mot_traditionnel = models.CharField(max_length=100, default=None)  # Changé en CharField
     langue_traditionnelle = models.CharField(max_length=50, default=None)
+    image = models.ImageField(upload_to='dico/', default='dico/question.gif',  # Chemin vers l'image par défaut
+        null=True,blank=True,max_length=None)
+    audio = models.FileField(upload_to='audios/', default='dico/question.gif', null=True)  # Chemin pour stocker les fichiers audio
 
     def __str__(self):
-        return self.mot_francais
+        return self.mot_francais    
     
+
 class Ressource(models.Model):
     TYPRES = [
         ('DOC', 'Document'),
@@ -104,15 +112,23 @@ class Quiz(models.Model):
     partie = models.CharField(max_length=10, null=True)
     level = models.CharField(max_length=30, null=True)  # e.g., 'Débutant', 'Intermédiaire', 'Avancé'
     langue = models.ForeignKey(Langue, on_delete=models.CASCADE, null=True)  # Référence à la langue
+    slug = models.SlugField(unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.langue)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
+
 
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     text = models.CharField(max_length=500)
     question_type = models.CharField(max_length=50, choices=[('MCQ', 'Choix Multiples'), ('TF', 'Vrai/Faux')])
-
+    image_question = models.ImageField(upload_to='question/', default='question/question.gif',  # Chemin vers l'image par défaut
+        null=True,blank=True,max_length=None)
     def __str__(self):
         return self.text
 
@@ -146,13 +162,12 @@ class Notification(models.Model):
     title = models.CharField(max_length=200)
     message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    username = models.ForeignKey(CustomUser, on_delete=models.CASCADE, default=None)
+    username = models.ForeignKey(CustomUser, on_delete=models.CASCADE, null=True)
     is_response = models.BooleanField(default=False)  # Indique si c'est une répon
 
     def __str__(self):
         return self.title
     
-# models.py
 class Comment(models.Model):
     notification = models.ForeignKey(Notification, on_delete=models.CASCADE, related_name="comments")  # Lien avec la notification
     message = models.TextField()

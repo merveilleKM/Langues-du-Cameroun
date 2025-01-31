@@ -1,56 +1,44 @@
 {% extends "plate/cours/base.html" %}
 
-{% load static %}
-
 {% block main %}
 
 <!-- Main Content -->
 <div class="col-md-9">
-    <!-- Dictionary Section -->
-<!-- Quiz Page -->
-<div class="container quiz-container">
-    <h3 class="text-center mb-4 text-warning">Choisissez un Quiz</h3>
-    <div class="row g-3">
-        <!-- Quiz Cards -->
-        <div class="col-md-2 col-sm-6">
-            <div class="quiz-card">
-                <h5>Quiz 1</h5>
-                <div class="points">Points obtenus : <strong>15</strong></div>
-                <div class="stars">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
+    <div class="container quiz-container">
+        <h3 class="text-center mb-4 text-warning">Choisissez un Quiz</h3>
+        <div class="row g-3">
+            <!-- Quiz Cards -->
+            {% for quiz in quizzes %}
+            <div class="col-md-2 col-sm-6">
+                <div class="quiz-card">
+                    <h5>{{ quiz.title }}</h5>
+                    <div class="points">Niveau : <strong>{{ quiz.level }}</strong></div>
+                    <div class="stars">
+                        {% if quiz.level == 'Débutant' %}
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                            <i class="far fa-star"></i>
+                        {% elif quiz.level == 'Intermédiaire' %}
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="far fa-star"></i>
+                        {% elif quiz.level == 'Avancé' %}
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        {% endif %}
+                    </div>
+                   <a href="{% url 'quiz_detail' quiz.slug quiz.id %}" class="btn btn-play">Jouer</a>
+
                 </div>
-                <button class="btn btn-play" onclick="startQuiz(1)">Jouer</button>
             </div>
-        </div>
-        <div class="col-md-2 col-sm-6">
-            <div class="quiz-card">
-                <h5>Quiz 2</h5>
-                <div class="points">Points obtenus : <strong>10</strong></div>
-                <div class="stars">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="far fa-star"></i>
-                </div>
-                <button class="btn btn-play" onclick="startQuiz(2)">Jouer</button>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center">Aucun quiz disponible pour ce cours.</p>
             </div>
+            {% endfor %}
         </div>
-        <div class="col-md-2 col-sm-6">
-            <div class="quiz-card">
-                <h5>Quiz 3</h5>
-                <div class="points">Points obtenus : <strong>5</strong></div>
-                <div class="stars">
-                    <i class="fas fa-star"></i>
-                    <i class="far fa-star"></i>
-                    <i class="far fa-star"></i>
-                </div>
-                <button class="btn btn-play" onclick="startQuiz(3)">Jouer</button>
-            </div>
-        </div>
-        <!-- Add more cards as needed -->
     </div>
-</div>
 </div>
 
 {% endblock %}

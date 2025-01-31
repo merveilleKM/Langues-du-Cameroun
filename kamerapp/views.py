@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import CustomUser, Cours, Langue, Quiz, Question, Dictionnaire, Notification, Ressource, Comment
+from .models import CustomUser, Cours, Langue, Quiz, Question, Dictionnaire, Notification, Ressource, Comment, UserScore
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .forms import UserUpdateForm, ProfileUpdateForm
+from django.http import JsonResponse
 
 def signin(request):
     if request.method == 'POST':
@@ -30,8 +31,8 @@ def signup (request):
         langue = request.POST.get('langue')
 
         # Vérification si l'utilisateur existe déjà
-        if CustomUser.objects.filter(email=email).exists():
-            messages.error(request, "Cet email est déjà utilisé.")
+        if CustomUser.objects.filter(email=email).exists() or CustomUser.objects.filter(username=username).exists():
+            messages.error(request, "Cet email ou nom d'utilisateur est déjà utilisé.")
             return render(request, 'signup.html')
 
         # Création de l'utilisateur
@@ -57,33 +58,119 @@ def deconnect (request):
 def accueil (request):
     return render(request, 'index.html')
 
-def dashboard (request):
-    return render(request, 'plate/dash.html')
-
-def cours (request):
-    # Récupérer la langue de l'utilisateur
+@login_required
+def dashboard(request):
     user_langue = request.user.langue  # Assurez-vous que c'est bien le bon attribut
-    
-    # Filtrer les cours par langue
-    cours = Langue.objects.filter(nomlangue=user_langue)  # Filtrer les cours selon la langue de l'utilisateur
+    user_langues = Langue.objects.filter(nomlangue=user_langue)
+    return render(request, 'plate/dash.html', {'cours': user_langues})
+def cours(request):
 
-    return render(request, 'plate/cours.html', {'cours': cours})
+    # Obtenez la langue par défaut de l'utilisateur (celle de l'inscription)
+    langue_par_defaut = None
+    if request.user.langue:  # Vérifie si une langue par défaut est définie
+        try:
+            langue_par_defaut = Langue.objects.get(nomlangue=request.user.langue)
+        except Langue.DoesNotExist:
+            pass
+
+    # Récupérez toutes les langues liées à l'utilisateur
+    autres_langues = request.user.langues.all()
+
+    # Si la langue par défaut n'est pas déjà dans les langues associées, ajoutez-la temporairement
+    if langue_par_defaut and langue_par_defaut not in autres_langues:
+        autres_langues = [langue_par_defaut] + list(autres_langues)
+
+    return render(request, 'plate/cours.html', {'cours': autres_langues})
+
+def searchcours(request):
+    user_langue = request.user.langue if request.user.langue else None
+    query = request.GET.get('q', user_langue).strip()
+
+    # Filtre les cours suivis par l'utilisateur OU les cours de la langue de l'utilisateur
+    cours = Langue.objects.filter(
+        Q(utilisateurs=request.user) | Q(nomlangue=user_langue)
+    ).distinct()
+
+    # Applique la recherche sur les cours filtrés
+    if query:
+        cours = cours.filter(
+            Q(description__icontains=query) | Q(nomlangue__icontains=query)
+        )
+
+    return render(request, 'plate/cours.html', {'cours': cours, 'query': query})
 
 def detail(request, slug):
-    # Récupérer la langue de l'utilisateur
-    user_langue = request.user.langue  # Assurez-vous que c'est bien le bon attribut
-
+    # Récupérer le cours sélectionné
     cours = get_object_or_404(Cours, slug=slug)
-    dets = Cours.objects.filter(langue__nomlangue=user_langue)
+
+    # Récupérer les cours associés à la langue du cours sélectionné
+    dets = Cours.objects.filter(langue=cours.langue)
+
     return render(request, 'plate/cours/detail.html', {'cours': cours, 'dets': dets})
 
-def dico (request):
-     
-    return render(request, 'plate/cours/dico.html', {'dico': dico})
+def quiz(request, slug):
+    # Récupérer la langue sélectionnée
+    langue = get_object_or_404(Langue, slug=slug)
 
-def quiz (request):
+    # Récupérer les quiz associés à la langue
+    quizzes = Quiz.objects.filter(langue=langue)
 
-    return render(request, 'plate/cours/quiz.html', {'quiz': quiz})
+    # Récupérer un cours associé à cette langue (pour la navigation)
+    cours = Cours.objects.filter(langue=langue).first()
+
+    # Passer les données au template
+    context = {
+        'cours': cours,  # Ajout de l'objet cours
+        'quizzes': quizzes,
+    }
+    return render(request, 'plate/cours/quiz.html', context)
+
+
+def quiz_detail(request, quiz_id, slug):
+    # Récupérer le quiz sélectionné
+    quiz = get_object_or_404(Quiz, slug=slug, id=quiz_id)
+
+    # Récupérer les questions associées au quiz
+    questions = quiz.questions.all()
+
+    # Récupérer un cours associé à cette langue (pour la navigation)
+    cours = Cours.objects.filter(langue=quiz.langue).first()
+
+    # Passer les données au template
+    context = {
+        'quiz': quiz,
+        'questions': questions,
+        'cours': cours,  # Ajout de l'objet cours
+    }
+    return render(request, 'plate/cours/quiz_detail.html', context)
+
+
+def dico(request, slug):
+    cours = get_object_or_404(Cours, slug=slug)
+    dictionnaire_entries = Dictionnaire.objects.filter(langue_traditionnelle=cours.langue.nomlangue)
+
+    result = None
+    mot = request.GET.get('mot', '').strip()
+    sens = request.GET.get('sens', 'fr-to-trad')
+
+    print(f"🔍 Mot recherché: {mot}, Sens: {sens}, Langue: {cours.langue.nomlangue}")
+
+    if mot:
+        if sens == 'fr-to-trad':
+            result = dictionnaire_entries.filter(mot_francais__iexact=mot).first()
+        elif sens == 'trad-to-fr':
+            result = dictionnaire_entries.filter(mot_traditionnel__iexact=mot).first()
+
+    print("📌 Résultat trouvé:", result)
+
+    context = {
+        'cours': cours,
+        'dictionnaire_entries': dictionnaire_entries,
+        'result': result,
+        'mot': mot,
+        'sens': sens,
+    }
+    return render(request, 'plate/cours/dico.html', context)
 
 
 def communaute(request):
@@ -108,6 +195,7 @@ def publier(request):
         document.save()  # Enregistrer le document
         return redirect('communaute')  # Rediriger vers la page de la communauté après la publication
 
+@login_required
 def commentaire(request):
     if request.method == "POST":
         if 'title' in request.POST and 'message' in request.POST:
@@ -122,6 +210,7 @@ def commentaire(request):
 
     return render(request, 'plate/community/commentaire.html')
 
+@login_required
 def add_comment(request, notification_id):
     if request.method == "POST" and 'message' in request.POST:
         notification = get_object_or_404(Notification, id=notification_id)
@@ -134,6 +223,7 @@ def add_comment(request, notification_id):
 
     return redirect('communaute')  # En cas de requête GET, redirige simplement
 
+@login_required
 def search(request):
     query = request.GET.get('q', '').strip()  # Récupère le terme de recherche
     notifications = Notification.objects.filter(
@@ -154,25 +244,41 @@ def search(request):
     }
     return render(request, 'plate/communaute.html', context)
 
-def profil (request):
+@login_required
+def profil(request):
     user = request.user
-    langues_disponibles = Langue.objects.all()  # Récupère toutes les langues disponibles
+    user_langues = request.user.langues.all()  # Récupérez les langues liées à l'utilisateur
+    langues_disponibles = Langue.objects.all()
 
     if request.method == "POST":
-        langue_id = request.POST.get('langue')  # Récupère l'ID de la langue sélectionnée
+        langue_id = request.POST.get('langue')
         if langue_id:
             try:
                 nouvelle_langue = Langue.objects.get(id=langue_id)
-                user.langues = nouvelle_langue  # Met à jour la langue d'apprentissage de l'utilisateur
-                user.langue = nouvelle_langue.nomlangue  # Met à jour le champ "langue" pour plus de lisibilité (optionnel)
-                user.save()  # Enregistre les modifications
-                return redirect('profil')  # Recharge la page pour refléter les changements
+
+                # Ajouter la langue
+                if nouvelle_langue not in user.langues.all():
+                    user.langues.add(nouvelle_langue)
+                    user.save()
+
+                # Ajouter les cours liés
+                nouveaux_cours = Cours.objects.filter(langue=nouvelle_langue).exclude(id__in=user.cours_suivis.all())
+                if nouveaux_cours.exists():
+                    user.cours_suivis.add(*nouveaux_cours)
+                    messages.success(request, f"Les cours de la langue {nouvelle_langue.nomlangue} ont été ajoutés.")
+                else:
+                    messages.warning(request, f"Aucun nouveau cours trouvé pour la langue {nouvelle_langue.nomlangue}.")
             except Langue.DoesNotExist:
-                pass  # Gestion des erreurs si la langue n'existe pas
+                messages.error(request, "La langue sélectionnée n'existe pas.")
+
+    # Récupérez les cours associés aux langues de l'utilisateur
+    cours = Cours.objects.filter(langue__in=user.langues.all()).distinct()
 
     return render(request, 'plate/profile.html', {
+        'user_langues': user_langues,
         'user': user,
         'langues_disponibles': langues_disponibles,
+        'cours': cours,
     })
 
 @login_required
