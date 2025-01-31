@@ -5,8 +5,8 @@
 <!-- Main Content -->
 <div class="col-md-9">
     <div class="container mt-3">
-        <h2 class="text-center text-warning" id="details">Introduction à la langue {{ cours.langue }}</h2>
-        <p>{{ langue.description }}</p>
+        <h2 class="text-center text-warning" id="details">Introduction à la langue {{ cours.langue.nomlangue }}</h2>
+        <p>{{ cours.langue.description }}</p>
 
         <!-- Modules -->
         {% for det in dets %}
@@ -30,7 +30,6 @@
 </div>
 
 {% endblock %}
-
 
 
 {% comment %} {% extends "plate/cours/base.html" %}

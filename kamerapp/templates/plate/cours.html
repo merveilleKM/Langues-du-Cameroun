@@ -6,7 +6,14 @@
 
 <!-- Search Bar -->
 <div class="search-container">
-    <input type="text" class="form-control" placeholder="Rechercher un cours..." aria-label="Search">
+    <form method="GET" action="{% url 'searchcours' %}" class="d-flex align-items-center">
+        <input type="text" name="q" class="form-control me-2" placeholder="Rechercher un sujet ou un post..." 
+            value="{{ query|default:'' }}"
+        >
+        <button type="submit" class="btn btn-main p-2">
+            <i class="fas fa-search"></i>
+        </button>
+    </form>
 </div>
 
 <!-- Courses List -->
@@ -18,29 +25,33 @@
             </span> 
         </h2>
         
-       <!-- Liste des cours -->
-    <div class="course-item-container">
-        {% for cour in cours %}
-        <div class="course-item">
-            <a href="{% url 'detail' cour.slug %}" class="course-link">
-                <img src="{{ cour.image.url }}" alt="{{ cour.nomlangue }}" class="course-image">
-            </a>
-            <div class="course-details">
-                <a href="{% url 'detail' cour.slug %}" class="course-title-link">
-                    <h5>📘 {{ cour.nomlangue }}</h5>
+        <!-- Message si aucun cours n'est trouvé -->
+        {% if not cours %}
+            <p class="text-center">Aucun cours trouvé pour "{{ query }}".</p>
+        {% endif %}
+
+        <!-- Liste des cours -->
+        <div class="course-item-container">
+            {% for cour in cours %}
+            <div class="course-item">
+                <a href="{% url 'detail' cour.slug %}" class="course-link">
+                    <img src="{% if cour.image %}{{ cour.image.url }}{% else %}{% static 'img/default-course-image.png' %}{% endif %}" 
+                         alt="{{ cour.nomlangue }}" class="course-image">
                 </a>
-                <p>{{ cour.description }}</p>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" data-progress="70" aria-valuemin="0" aria-valuemax="100">
-                        <span>70%</span>
+                <div class="course-details">
+                    <a href="{% url 'detail' cour.slug %}" class="course-title-link">
+                        <h5>📘 {{ cour.nomlangue }}</h5>
+                    </a>
+                    <p>{{ cour.description|default:"Aucune description disponible." }}</p>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" data-progress="70" aria-valuemin="0" aria-valuemax="100">
+                            <span>70%</span>
+                        </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-    
-
     </div>
 </section>
 
@@ -81,9 +92,6 @@
         color: #ff8c00;
         font-weight: bold;
     }
-    
 </style>
-
-
 
 {% endblock %}

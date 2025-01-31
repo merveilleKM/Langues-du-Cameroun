@@ -28,31 +28,18 @@
                         <canvas id="progressChart"></canvas>
                     </div>
 
-                    <!-- Mes Cours -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-primary text-white">
-                            <h3 class="mb-0">Mes Cours</h3>
-                        </div>
-                        <div class="card-body">
-                            <ul class="list-group">
-                                <li class="list-group-item"><i class="fas fa-book"></i> Introduction au Fulfulde - 70%</li>
-                                <li class="list-group-item"><i class="fas fa-language"></i> Initiation au Duala - 40%</li>
-                                <li class="list-group-item"><i class="fas fa-book-open"></i> Apprendre le Bassa - 60%</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                    <!-- Préférences Linguistiques -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-success text-white">
-                            <h3 class="mb-0">Préférences Linguistiques</h3>
+                    
+                        <!-- Préférences Linguistiques -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-header bg-success text-white d-flex align-items-center">
+                            <h3 class="mb-0"><i class="fas fa-language me-2"></i>Préférences Linguistiques</h3>
                         </div>
                         <div class="card-body">
                             <form method="POST">
                                 {% csrf_token %}
                                 <div class="mb-3">
-                                    <label for="preferredLanguages" class="form-label">Langue d'apprentissage :</label>
-                                    <select name="langue" class="form-select" id="preferredLanguages">
+                                    <label for="preferredLanguages" class="form-label fw-bold">Langue d'apprentissage :</label>
+                                    <select name="langue" class="form-select form-select-lg" id="preferredLanguages">
                                         {% for langue in langues_disponibles %}
                                             <option value="{{ langue.id }}" {% if user.langues == langue %}selected{% endif %}>
                                                 {{ langue.nomlangue }}
@@ -60,37 +47,73 @@
                                         {% endfor %}
                                     </select>
                                 </div>
-                                <button type="submit" class="btn btn-success">
-                                    <i class="fas fa-save"></i> Sauvegarder
+                                <button type="submit" class="btn btn-success w-100 py-2">
+                                    <i class="fas fa-save me-2"></i>Sauvegarder
                                 </button>
                             </form>
                         </div>
                     </div>
 
-                    <!-- Activités Récentes -->
+                    <!-- Mes Cours -->
                     <div class="card mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h3 class="mb-0">Activités Récentes</h3>
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">Mes Cours</h3>
                         </div>
                         <div class="card-body">
                             <ul class="list-group">
-                                <li class="list-group-item"><i class="fas fa-check-circle"></i> Terminé : Introduction au Fulfulde (15 Jan 2025)</li>
-                                <li class="list-group-item"><i class="fas fa-pencil-alt"></i> Quiz répondu : Initiation au Duala (14 Jan 2025)</li>
-                                <li class="list-group-item"><i class="fas fa-comment-dots"></i> Participation : Forum sur le Bassa (12 Jan 2025)</li>
+                                {%for lang in user_langues%}
+                                <li class="list-group-item"><i class="fas fa-book"></i> {{lang.description}}</li>
+                                {% comment %} <li class="list-group-item"><i class="fas fa-language"></i> Initiation au Duala - 40%</li>
+                                <li class="list-group-item"><i class="fas fa-book-open"></i> Apprendre le Bassa - 60%</li> {% endcomment %}
+                                {%endfor%}
                             </ul>
                         </div>
                     </div>
 
-                    <!-- Informations Supplémentaires -->
-                    <div class="card">
-                        <div class="card-header bg-secondary text-white">
-                            <h3 class="mb-0">Informations Supplémentaires</h3>
-                        </div>
-                        <div class="card-body">
-                            <p>Optimisez votre expérience d'apprentissage en mettant à jour vos préférences linguistiques et en suivant vos progrès.</p>
-                            <p>Besoin d'aide ? Contactez notre <a href="#">support technique</a>.</p>
-                        </div>
-                    </div>
+
+<!-- Activités Récentes -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-info text-white d-flex align-items-center">
+        <h3 class="mb-0"><i class="fas fa-history me-2"></i>Activités Récentes</h3>
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex align-items-center">
+                <i class="fas fa-check-circle text-success me-3"></i>
+                Terminé : <strong>Introduction au Fulfulde</strong>
+                <span class="ms-auto text-muted">(15 Jan 2025)</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <i class="fas fa-pencil-alt text-warning me-3"></i>
+                Quiz répondu : <strong>Initiation au Duala</strong>
+                <span class="ms-auto text-muted">(14 Jan 2025)</span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <i class="fas fa-comment-dots text-info me-3"></i>
+                Participation : <strong>Forum sur le Bassa</strong>
+                <span class="ms-auto text-muted">(12 Jan 2025)</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Informations Supplémentaires -->
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white d-flex align-items-center">
+        <h3 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations Supplémentaires</h3>
+    </div>
+    <div class="card-body">
+        <p class="mb-3">
+            <i class="fas fa-lightbulb text-warning me-2"></i>
+            Optimisez votre expérience d'apprentissage en mettant à jour vos préférences linguistiques et en suivant vos progrès.
+        </p>
+        <p class="mb-0">
+            <i class="fas fa-life-ring text-primary me-2"></i>
+            Besoin d'aide ? Contactez notre <a href="#" class="text-decoration-underline">support technique</a>.
+        </p>
+    </div>
+</div>
+
                 </div>
             </div>
         </div>
