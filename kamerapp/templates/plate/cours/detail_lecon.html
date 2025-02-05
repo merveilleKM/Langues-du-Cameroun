@@ -1,0 +1,52 @@
+<!-- plate/cours/detail_cours.html -->
+{% extends "plate/cours/base.html" %}
+
+{% block main %}
+<div class="container mt-4">
+    <h2 class="text-center text-warning">{{ lecon.titre }}</h2>
+    <div id="lesson-content" class="p-3 border rounded shadow-sm bg-light">
+        {{ lecon.contenu|safe }}
+    </div>
+
+    <!-- Boutons d'interaction -->
+    <div class="mt-4 d-flex justify-content-between">
+        <button id="toggle-annotations" class="btn btn-outline-primary">Activer les annotations</button>
+        <button id="quiz-btn" class="btn btn-success">Quiz Rapide</button>
+    </div>
+
+    <!-- Section Quiz -->
+    <div id="quiz-section" class="mt-4" style="display:none;">
+        <h4>Petit Quiz</h4>
+        <p>Que signifie le mot "Bonjour" en {{ lecon.chap.cours.langue.nomlangue }} ?</p>
+        <input type="text" id="quiz-answer" class="form-control" placeholder="Votre réponse ici...">
+        <button class="btn btn-primary mt-2" onclick="checkAnswer()">Valider</button>
+        <p id="quiz-feedback" class="mt-2"></p>
+    </div>
+</div>
+
+<script>
+    document.getElementById('toggle-annotations').addEventListener('click', function() {
+        const content = document.getElementById('lesson-content');
+        content.contentEditable = content.isContentEditable ? "false" : "true";
+        this.textContent = content.isContentEditable ? "Désactiver les annotations" : "Activer les annotations";
+    });
+
+    document.getElementById('quiz-btn').addEventListener('click', function() {
+        document.getElementById('quiz-section').style.display = 'block';
+    });
+
+    function checkAnswer() {
+        const userAnswer = document.getElementById('quiz-answer').value.toLowerCase();
+        const correctAnswer = 'bonjour';  // Remplace par la bonne réponse dynamique si nécessaire
+        const feedback = document.getElementById('quiz-feedback');
+
+        if (userAnswer === correctAnswer) {
+            feedback.textContent = 'Bravo ! Bonne réponse.';
+            feedback.style.color = 'green';
+        } else {
+            feedback.textContent = 'Oops ! Ce n\'est pas correct. Réessaie !';
+            feedback.style.color = 'red';
+        }
+    }
+</script>
+{% endblock %}

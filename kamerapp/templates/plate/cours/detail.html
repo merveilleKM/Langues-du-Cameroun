@@ -19,9 +19,14 @@
                 <h4>{{ chapitre.titre }}</h4>
 
                 <!-- Leçons -->
-                {% for lecon in chapitre.lecons.all %}
-                <div class="lesson">{{ lecon.titre }}</div>
-                {% endfor %}
+            {% for lecon in chapitre.lecons.all %}
+                <div class="lesson">
+                    <a href="{% url 'detail_lecon' cours.slug lecon.id %}" class="text-decoration-none text-dark">
+                        {{ lecon.titre }}
+                    </a>
+                </div>
+            {% endfor %}
+
             </div>
             {% endfor %}
         </div>
