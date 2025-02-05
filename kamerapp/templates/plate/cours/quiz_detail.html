@@ -112,6 +112,53 @@
         color: var(--white);
     }
 
+    .incorrect-section {
+        background: var(--white);
+        border: 2px solid var(--main-yellow);
+        border-radius: 15px;
+        padding: 20px;
+        margin-top: 30px;
+        box-shadow: 0 4px 8px var(--shadow-light);
+    }
+    
+    .incorrect-section h3 {
+        color: var(--main-yellow);
+        margin-bottom: 20px;
+    }
+    
+    .incorrect-item {
+        background-color: var(--gray-light);
+        border: none;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        padding: 15px;
+        box-shadow: 0 2px 4px var(--shadow-light);
+    }
+    
+    .incorrect-item strong {
+        color: var(--text-dark);
+    }
+    
+    .incorrect-item span {
+        display: block;
+        margin-top: 5px;
+        color: var(--text-muted);
+    }
+    
+    .btn-primary {
+        background-color: var(--main-yellow);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--hover-yellow);
+        color: var(--white);
+    }
+    
+
     footer {
         background-color: var(--white);
         color: var(--text-muted);
@@ -268,15 +315,51 @@
     });
 
     // Gestion du bouton "Fini"
-    finishBtn.addEventListener('click', () => {
+finishBtn.addEventListener('click', () => {
+    // Envoyer les réponses au backend via AJAX
+    fetch("{% url 'quiz_detail' quiz.slug quiz.id %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'  // Inclure le token CSRF pour la sécurité
+        },
+        body: JSON.stringify(selectedAnswers)
+    })
+    .then(response => response.json())
+    .then(data => {
+        let incorrectAnswersHtml = '';
+    
+        // Si des réponses incorrectes existent, les afficher
+        if (data.incorrect_answers.length > 0) {
+            incorrectAnswersHtml = `
+                <div class="incorrect-section text-left">
+                    <h3>Réponses incorrectes :</h3>
+                    ${data.incorrect_answers.map(incorrect => `
+                        <div class="incorrect-item">
+                            <strong>Question :</strong> ${incorrect[0]}<br>
+                            <span><strong>Votre réponse :</strong> ${incorrect[2]}</span>
+                            <span><strong>Bonne réponse :</strong> ${incorrect[1]}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+    
+        // Afficher le score et les réponses incorrectes
         document.querySelector('.quiz-container').innerHTML = `
             <div class="text-center">
                 <h2>Félicitations ! 🎉</h2>
-                <p>Vous avez terminé le quiz.</p>
-                <a href="{% url 'quiz' quiz.slug %}" class="btn btn-primary">Retour à l'accueil</a>
+                <p>Votre score : <strong>${data.score} / ${data.total_questions}</strong></p>
+                <p>Étoiles obtenues : <strong>${data.stars} ⭐</strong></p>
+                ${incorrectAnswersHtml}
+                <a href="{% url 'quiz' quiz.slug %}" class="btn btn-primary mt-4">Retour à l'accueil</a>
             </div>
         `;
-    });
+    })
+        
+    .catch(error => console.error('Erreur:', error));
+});
+
 
     // Appliquer le style CSS pour l'option sélectionnée
     const style = document.createElement('style');

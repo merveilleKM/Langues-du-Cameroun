@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import CustomUser, Cours, Langue, Quiz, Question, Dictionnaire, Notification, Ressource, Comment, UserScore
+from .models import CustomUser, Cours, Langue, Quiz, Question, Dictionnaire, Notification, Ressource, Comment, UserScore, Answer, Leçon
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.http import JsonResponse
+import json  
 
 def signin(request):
     if request.method == 'POST':
@@ -99,6 +100,7 @@ def searchcours(request):
 
     return render(request, 'plate/cours.html', {'cours': cours, 'query': query})
 
+@login_required
 def detail(request, slug):
     # Récupérer le cours sélectionné
     cours = get_object_or_404(Cours, slug=slug)
@@ -107,6 +109,12 @@ def detail(request, slug):
     dets = Cours.objects.filter(langue=cours.langue)
 
     return render(request, 'plate/cours/detail.html', {'cours': cours, 'dets': dets})
+
+@login_required
+def detail_lecon(request, lecon_id, slug):
+    lecon = get_object_or_404(Leçon, id=lecon_id, chap__cours__slug=slug)
+    return render(request, 'plate/cours/detail_lecon.html', {'lecon': lecon})
+
 
 def quiz(request, slug):
     # Récupérer la langue sélectionnée
@@ -118,32 +126,75 @@ def quiz(request, slug):
     # Récupérer un cours associé à cette langue (pour la navigation)
     cours = Cours.objects.filter(langue=langue).first()
 
+    # Récupérer les scores des quiz pour l'utilisateur connecté
+    user_scores = {score.quiz.id: score.stars for score in UserScore.objects.filter(user=request.user)}
+
     # Passer les données au template
     context = {
         'cours': cours,  # Ajout de l'objet cours
         'quizzes': quizzes,
+        'user_scores': user_scores,  # Dictionnaire {quiz_id: étoiles}
     }
     return render(request, 'plate/cours/quiz.html', context)
 
-
 def quiz_detail(request, quiz_id, slug):
-    # Récupérer le quiz sélectionné
     quiz = get_object_or_404(Quiz, slug=slug, id=quiz_id)
-
-    # Récupérer les questions associées au quiz
     questions = quiz.questions.all()
-
-    # Récupérer un cours associé à cette langue (pour la navigation)
     cours = Cours.objects.filter(langue=quiz.langue).first()
 
-    # Passer les données au template
-    context = {
+    if request.method == 'POST':
+        data = json.loads(request.body)  # Charger les données JSON envoyées par fetch
+        score = 0
+        incorrect_answers = []
+
+        for question in questions:
+            selected_answer_id = data.get(str(question.id))
+            if selected_answer_id:
+                selected_answer = Answer.objects.get(id=selected_answer_id)
+                if selected_answer.is_correct:
+                    score += 1
+                else:
+                    correct_answer = question.answers.filter(is_correct=True).first()
+                    incorrect_answers.append((question.text, correct_answer.text, selected_answer.text))
+
+        total_questions = questions.count()
+
+        # Attribution des étoiles
+        if score == total_questions:
+            stars = 3
+        elif score >= total_questions * 0.66:
+            stars = 2
+        elif score >= total_questions * 0.34:
+            stars = 1
+        else:
+            stars = 0
+
+        # Enregistrement du score
+        try:
+            user_score, created = UserScore.objects.update_or_create(
+                user=request.user,
+                quiz=quiz,
+                defaults={'score': score, 'stars': stars}
+            )
+        except Exception as e:
+            print(f"Erreur lors de l'enregistrement : {e}")
+
+        return JsonResponse({
+            'score': score,
+            'total_questions': total_questions,
+            'incorrect_answers': incorrect_answers,
+            'stars': stars
+        })
+
+    user_score = UserScore.objects.filter(user=request.user, quiz=quiz).first()
+    user_stars = user_score.stars if user_score else 0
+
+    return render(request, 'plate/cours/quiz_detail.html', {
         'quiz': quiz,
         'questions': questions,
-        'cours': cours,  # Ajout de l'objet cours
-    }
-    return render(request, 'plate/cours/quiz_detail.html', context)
-
+        'cours': cours,
+        'user_stars': user_stars,
+    })
 
 def dico(request, slug):
     cours = get_object_or_404(Cours, slug=slug)
@@ -171,7 +222,6 @@ def dico(request, slug):
         'sens': sens,
     }
     return render(request, 'plate/cours/dico.html', context)
-
 
 def communaute(request):
     notifications = Notification.objects.filter(is_response=False)

@@ -47,7 +47,6 @@ class CustomUser(AbstractUser):
     def __str__(self):
         return self.email
     
-
 class Chapitre(models.Model):
     titre = models.CharField(max_length=100, default="vide")
     cours = models.ForeignKey(Cours, related_name='chapitres',on_delete=models.CASCADE, null=True)
@@ -122,7 +121,6 @@ class Quiz(models.Model):
     def __str__(self):
         return self.title
 
-
 class Question(models.Model):
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
     text = models.CharField(max_length=500)
@@ -148,6 +146,7 @@ class UserScore(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.quiz.title} : {self.score} points, {self.stars} étoiles"
+
 
 class Expression(models.Model):
     expression = models.CharField(max_length=100)

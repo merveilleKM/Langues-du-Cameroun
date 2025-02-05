@@ -11,6 +11,7 @@ urlpatterns = [
     path('signup', views.signup),
     path('deconnect', views.deconnect, name='deconnect'),
 
+    path('detail_lecon/<slug:slug>/lecon/<int:lecon_id>/', views.detail_lecon, name='detail_lecon'),
     path('cours', views.cours, name="cours"),
     path('searchcours/', views.searchcours, name='searchcours'),
 

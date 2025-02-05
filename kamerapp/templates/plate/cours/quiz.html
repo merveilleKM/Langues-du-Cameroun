@@ -1,5 +1,7 @@
 {% extends "plate/cours/base.html" %}
 
+{% load custom_filters %}
+
 {% block main %}
 
 <!-- Main Content -->
@@ -9,36 +11,70 @@
         <div class="row g-3">
             <!-- Quiz Cards -->
             {% for quiz in quizzes %}
-            <div class="col-md-2 col-sm-6">
-                <div class="quiz-card">
-                    <h5>{{ quiz.title }}</h5>
-                    <div class="points">Niveau : <strong>{{ quiz.level }}</strong></div>
-                    <div class="stars">
-                        {% if quiz.level == 'Débutant' %}
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                            <i class="far fa-star"></i>
-                        {% elif quiz.level == 'Intermédiaire' %}
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="far fa-star"></i>
-                        {% elif quiz.level == 'Avancé' %}
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        {% endif %}
+                <div class="col-md-2 col-sm-6">
+                    <div class="quiz-card">
+                        <h5>{{ quiz.title }}</h5>
+                        <div class="points">Niveau : <strong>{{ quiz.level }}</strong></div>
+                        <div class="stars">
+                            {% with user_scores|get_item:quiz.id as user_stars %}
+                                
+                                <!-- Test d'affichage simple des étoiles pleines -->
+                                {% for _ in user_stars|int_range %}
+                                    ⭐
+                                {% endfor %}
+                        
+                                <!-- Test d'affichage simple des étoiles vides -->
+                                {% with remaining_stars=3|sub:user_stars %}
+                                    {% for _ in remaining_stars|int_range %}
+                                        <i class="far fa-star"></i>
+                                    {% endfor %}
+                                {% endwith %}
+                            {% endwith %}
+                        </div>
+                        
+                        <a href="{% url 'quiz_detail' quiz.slug quiz.id %}" class="btn btn-play">Jouer</a>
                     </div>
-                   <a href="{% url 'quiz_detail' quiz.slug quiz.id %}" class="btn btn-play">Jouer</a>
-
                 </div>
-            </div>
             {% empty %}
-            <div class="col-12">
-                <p class="text-center">Aucun quiz disponible pour ce cours.</p>
-            </div>
+                <div class="col-12">
+                    <p class="text-center">Aucun quiz disponible pour ce cours.</p>
+                </div>
             {% endfor %}
         </div>
     </div>
 </div>
+
+<style>
+    .stars {
+        color: #FFD700; /* Couleur dorée pour les étoiles */
+        margin: 10px 0;
+    }
+    
+    .stars i {
+        margin: 0 2px;
+        font-size: 1.2rem;
+    }
+</style>
+
+<script>
+    // Après la soumission du quiz
+fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: {
+        'X-CSRFToken': csrftoken  // Assure-toi d'avoir le token CSRF
+    }
+})
+.then(response => response.json())
+.then(data => {
+    alert(`Vous avez obtenu ${data.stars} étoiles !`);
+
+    // Mettre à jour l'affichage des étoiles pour ce quiz spécifique
+    const quizCard = document.querySelector(`#quiz-${data.quiz_id} .stars`);
+    if (quizCard) {
+        quizCard.innerHTML = '⭐'.repeat(data.stars) + '<i class="far fa-star">'.repeat(3 - data.stars);
+    }
+});
+</script>
 
 {% endblock %}
