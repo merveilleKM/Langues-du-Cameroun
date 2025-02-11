@@ -9,4 +9,4 @@ Etapes pour ouvrir le projet
 7- installer les packages necessaires : pip install mysqlclient, pip install pillow 
 8- configurer la base de donnees dans settings.py du projet, ici c'est kamerapp
 9- faire les migrations : python manage.py makemigrations ensuite python manage.py migrate
-10- Ouvrir l'application dans ton navigateur a l'adresse : 127.0.0.0:8080
+10- Ouvrir l'application dans ton navigateur a l'adresse : 127.0.0.0:8000
