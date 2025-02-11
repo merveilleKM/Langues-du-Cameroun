@@ -1,52 +1,445 @@
-<!-- plate/cours/detail_cours.html -->
-{% extends "plate/cours/base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apprendre les Salutations en Ewondo</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background-color: #f8f9fa; font-family: Arial, sans-serif; }
+        .section { margin-bottom: 30px; padding: 20px; background: #fff; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); }
+        .exercise { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; }
+        .hidden { display: none; }
+        .btn-audio { background: none; border: none; cursor: pointer; font-size: 1.2em; }
+        .feedback { margin-top: 10px; font-weight: bold; }
+        .correct { color: green; }
+        .incorrect { color: red; }
+        .btn-back { background-color: #FFB300; color: white; border: none; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block; margin-bottom: 20px; }
+        .btn-back:hover { background-color: #e69a00; }
+        .word-block { display: inline-block; padding: 10px; margin: 5px; background: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+        .word-block.selected { background: #28a745; }
+        .selected-container { margin-top: 20px; padding: 10px; background: #d1ecf1; border-radius: 8px; min-height: 50px; display: flex; flex-wrap: wrap; }
+        
+    </style>
+</head>
+<body>
 
-{% block main %}
 <div class="container mt-4">
-    <h2 class="text-center text-warning">{{ lecon.titre }}</h2>
-    <div id="lesson-content" class="p-3 border rounded shadow-sm bg-light">
-        {{ lecon.contenu|safe }}
+    <a href="{% url 'detail' cours.slug %}" class="btn-back">⬅ Retour à la liste des cours</a>
+    <div class="section text-center">
+        <h2 class="text-primary">📖 Introduction : Les Salutations en Ewondo</h2>
+        <p>Apprenez à saluer et à engager une conversation simple en Ewondo.</p>
+       
+        {% if lecon.image_lecon %}
+            <img src="{{ lecon.image_lecon.url }}" width="200" class="mx-5">
+        {% endif %}
     </div>
+    <!-- Introduction -->
+    <section class="section">
+        <h2 class="text-primary">1. Introduction</h2>
+        <p>{{lecon.intro}}</p>
+    </section>
 
-    <!-- Boutons d'interaction -->
-    <div class="mt-4 d-flex justify-content-between">
-        <button id="toggle-annotations" class="btn btn-outline-primary">Activer les annotations</button>
-        <button id="quiz-btn" class="btn btn-success">Quiz Rapide</button>
-    </div>
+   <!-- Vocabulaire de Base -->
+<section class="section">
+    <h2 class="text-primary">2. Vocabulaire de Base</h2>
+    <table class="table table-bordered">
+        <thead class="table-light">
+            <tr>
+                <th>Français</th>
+                <th>Ewondo</th>
+                <th>Prononciation</th>
+                <th>Utilisation</th>
+                <th>Audio</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mot in vocabulaire %}
+            <tr>
+                <td>{{ mot.français }}</td>
+                <td>{{ mot.langue }}</td>
+                <td>{{ mot.prononciation }}</td>
+                <td>{{ mot.utilisation }}</td>
+                <td>
+                    {% if mot.audio %}
+                    <audio controls>
+                        <source src="{{ mot.audio.url }}" type="audio/mpeg">
+                        Votre navigateur ne supporte pas l'élément audio.
+                    </audio>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
 
-    <!-- Section Quiz -->
-    <div id="quiz-section" class="mt-4" style="display:none;">
-        <h4>Petit Quiz</h4>
-        <p>Que signifie le mot "Bonjour" en {{ lecon.chap.cours.langue.nomlangue }} ?</p>
-        <input type="text" id="quiz-answer" class="form-control" placeholder="Votre réponse ici...">
-        <button class="btn btn-primary mt-2" onclick="checkAnswer()">Valider</button>
-        <p id="quiz-feedback" class="mt-2"></p>
+<!-- Exemples de Dialogues -->
+<section class="section">
+    <h2 class="text-primary">3. Exemples de Dialogues</h2>
+    {% for dialogue in dialogues %}
+    <h4>{{ dialogue.titre }}</h4>
+    <div class="border p-3 bg-light">
+        {% for ligne in dialogue.lignes.all %}
+        <p>
+            <strong>{{ ligne.personnage }} :</strong> {{ ligne.texte }}
+            {% if ligne.audio %}
+            <audio controls class="btn-audio float-end">
+                <source src="{{ ligne.audio.url }}" type="audio/mpeg">
+                Votre navigateur ne supporte pas l'élément audio.
+            </audio>
+            {% endif %}
+        </p>
+        {% endfor %}
     </div>
+    <p class="mt-2">{{ dialogue.description }}</p>
+    {% endfor %}
+</section>
+
+<!-- Exercices Pratiques -->
+<section class="section">
+    <h2 class="text-primary">4. Exercices Pratiques</h2>
+    {% for exercice in exercices %}
+    <div class="exercise">
+        <p><strong>{{ exercice.type }} :</strong> {{ exercice.question }}</p>
+        {% if exercice.type == 'traduction' %}
+            <!-- Input pour la traduction et bouton de validation -->
+            <input type="text" class="form-control" id="ex{{ exercice.id }}_input" placeholder="Votre réponse...">
+            <button class="btn btn-primary mt-2" onclick="validateExercice({{ exercice.id }}, '{{ exercice.réponse }}')">Valider</button>
+        {% elif exercice.type == 'quiz' %}
+            <!-- Exemple : plusieurs options proposées -->
+            <button class="btn btn-light" onclick="selectOption({{ exercice.id }}, 'Option 1', '{{ exercice.réponse }}')">Option 1</button>
+            <button class="btn btn-light" onclick="selectOption({{ exercice.id }}, 'Option 2', '{{ exercice.réponse }}')">Option 2</button>
+            <button class="btn btn-light" onclick="selectOption({{ exercice.id }}, 'Option 3', '{{ exercice.réponse }}')">Option 3</button>
+            <!-- Bouton de validation pour le quiz -->
+            <button class="btn btn-primary mt-2" onclick="validateExerciceQuiz({{ exercice.id }}, '{{ exercice.réponse }}')">Valider</button>
+        {% endif %}        
+        <p id="feedback-{{ exercice.id }}" class="feedback"></p>
+    </div>
+    {% endfor %}
+</section>
+
+<!-- Jeux -->
+<section class="section">
+    <h2 class="text-primary">5. Jeux</h2>
+    {% for jeu in jeux %}
+    <div class="exercise">
+        <p><strong>{{ jeu.type }} :</strong> {{ jeu.instructions }}</p>
+
+        <!-- Afficher le contenu en fonction du type de jeu -->
+        {% if jeu.type == 'reconstitution' %}
+            <p>Sélectionnez les mots dans le bon ordre :</p>
+    
+            <!-- Conteneur pour les mots mélangés -->
+            <div id="word-container-{{ jeu.id }}" class="word-container">
+                {% for mot in jeu.données.motsMélangés %}
+                    <span class="word-block" onclick="selectWord('{{ jeu.id }}', this, '{{ mot }}')">{{ mot }}</span>
+                {% endfor %}
+            </div>
+
+            <!-- Conteneur pour les mots sélectionnés -->
+            <div id="selected-container-{{ jeu.id }}" class="selected-container"></div>
+
+            <button class="btn btn-success" onclick="validateSentence('{{ jeu.id }}', {{ jeu.données.phraseCorrecte|safe }})">Valider</button>
+            <p id="feedback-{{ jeu.id }}" class="feedback"></p>
+    
+        {% elif jeu.type == 'quiz' %}
+            <p>{{ jeu.données.question }}</p>
+            {% for option in jeu.données.options %}
+                <button class="btn btn-light" onclick="checkQuiz(this, '{{ option }}', '{{ jeu.données.réponse_correcte }}', '{{ jeu.id }}')">{{ option }}</button>
+            {% endfor %}
+            <p id="quiz-feedback-{{ jeu.id }}" class="feedback"></p>
+
+        {% elif jeu.type == 'association' %}
+            <div id="association-container-{{ jeu.id }}" class="mb-3">
+                {% for paire in jeu.données.paires %}
+                    <div class="word-block" onclick="selectWord('{{ paire.français }}', '{{ jeu.id }}')">{{ paire.français }}</div>
+                    <div class="word-block" onclick="selectWord('{{ paire.ewondo }}', '{{ jeu.id }}')">{{ paire.ewondo }}</div>
+                {% endfor %}
+            </div>
+            <button class="btn btn-success" onclick="validateAssociation('{{ jeu.id }}', {{ jeu.données.paires|safe }})">Valider</button>
+            <p id="association-feedback-{{ jeu.id }}" class="feedback"></p>
+
+        {% elif jeu.type == 'traduction' %}
+            <p>Traduisez : {{ jeu.données.phrase }}</p>
+            <input type="text" id="traduction-input-{{ jeu.id }}" class="form-control" placeholder="Votre réponse...">
+            <button class="btn btn-success" onclick="validateTraduction('{{ jeu.id }}', '{{ jeu.données.réponse_correcte }}')">Valider</button>
+            <p id="traduction-feedback-{{ jeu.id }}" class="feedback"></p>
+
+        {% elif jeu.type == 'complétion' %}
+            <div class="dialogue" id="dialogue-{{ jeu.id }}">
+                {% for ligne in jeu.données.dialogue %}
+                    <p>
+                        <strong>{{ ligne.personnage }} :</strong>
+                        {% for mot in ligne.texte.split %}
+                            {% if mot == "__________" %}
+                                <input type="text" class="form-control" placeholder="Votre réponse..." 
+                                    style="width: auto; display: inline-block; text-align: center;">
+                            {% else %}
+                                {{ mot }}
+                            {% endif %}
+                        {% endfor %}
+                    </p>
+                {% endfor %}
+            </div>
+            <button class="btn btn-success" onclick="validateComplétion('{{ jeu.id }}', {{ jeu.données.réponses_correctes|safe }})">Valider</button>
+            <p id="complétion-feedback-{{ jeu.id }}" class="feedback"></p>
+        {% endif %}
+
+    </div>
+    {% endfor %}
+</section>
+
+    <button class="btn btn-success mt-3" onclick="terminerLecon()">Terminer la leçon</button>
 </div>
 
+
 <script>
-    document.getElementById('toggle-annotations').addEventListener('click', function() {
-        const content = document.getElementById('lesson-content');
-        content.contentEditable = content.isContentEditable ? "false" : "true";
-        this.textContent = content.isContentEditable ? "Désactiver les annotations" : "Activer les annotations";
-    });
-
-    document.getElementById('quiz-btn').addEventListener('click', function() {
-        document.getElementById('quiz-section').style.display = 'block';
-    });
-
-    function checkAnswer() {
-        const userAnswer = document.getElementById('quiz-answer').value.toLowerCase();
-        const correctAnswer = 'bonjour';  // Remplace par la bonne réponse dynamique si nécessaire
-        const feedback = document.getElementById('quiz-feedback');
-
-        if (userAnswer === correctAnswer) {
-            feedback.textContent = 'Bravo ! Bonne réponse.';
-            feedback.style.color = 'green';
+    //traduction ok
+    function validateExercice(exerciceId, correctAnswer) {
+        let input = document.getElementById("ex" + exerciceId + "_input");
+        let feedback = document.getElementById("feedback-" + exerciceId);
+        let userAnswer = input.value.toLowerCase().trim();
+        if (userAnswer === correctAnswer.toLowerCase().trim()) {
+            feedback.textContent = "✅ Bonne réponse !";
+            feedback.className = "feedback correct";
         } else {
-            feedback.textContent = 'Oops ! Ce n\'est pas correct. Réessaie !';
-            feedback.style.color = 'red';
+            feedback.textContent = "❌ Mauvaise réponse. Essayez encore !";
+            feedback.className = "feedback incorrect";
         }
     }
 </script>
-{% endblock %}
+
+<script>
+    //quiz
+    function checkQuiz(button, option, réponse_correcte, jeuId) {
+        const feedback = document.getElementById(`quiz-feedback-${jeuId}`);
+        if (option === réponse_correcte) {
+            feedback.textContent = "✅ Bonne réponse !";
+            feedback.className = "feedback correct";
+        } else {
+            feedback.textContent = "❌ Mauvaise réponse. Essayez encore !";
+            feedback.className = "feedback incorrect";
+        }
+    }
+
+    //association
+    function validateAssociation(jeuId, paires) {
+        const selectedPairs = []; // Récupérer les paires sélectionnées
+        const feedback = document.getElementById(`association-feedback-${jeuId}`);
+    
+        if (JSON.stringify(selectedPairs) === JSON.stringify(paires)) {
+            feedback.textContent = "Bravo ! Vous avez correctement associé les mots.";
+            feedback.className = "feedback correct";
+        } else {
+            feedback.textContent = "Incorrect. Essayez encore !";
+            feedback.className = "feedback incorrect";
+        }
+    }
+
+    //dialogue
+    function validateComplétion(jeuId, réponsesCorrectes) {
+        const réponses = []; // Récupérer les réponses de l'utilisateur
+        const feedback = document.getElementById(`complétion-feedback-${jeuId}`);
+    
+        if (JSON.stringify(réponses) === JSON.stringify(réponsesCorrectes)) {
+            feedback.textContent = "Bravo ! Vous avez correctement complété le dialogue.";
+            feedback.className = "feedback correct";
+        } else {
+            feedback.textContent = "Incorrect. Essayez encore !";
+            feedback.className = "feedback incorrect";
+        }
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("[id^='word-container-']").forEach(container => {
+            const jeuId = container.id.split('-')[2]; // Extraire l'ID du jeu
+            const motsMelanges = JSON.parse(container.getAttribute("data-mots")); // Récupérer les mots mélangés
+            
+            console.log(`Jeu ${jeuId} - Mots mélangés :`, motsMelanges); // Vérification console
+            
+            if (motsMelanges.length > 0) {
+                generateWordBlocks(jeuId, motsMelanges);
+            }
+        });
+    });
+
+    function generateWordBlocks(jeuId, motsMelanges) {
+        const wordContainer = document.getElementById(`word-container-${jeuId}`);
+        wordContainer.innerHTML = ""; // Nettoyer le conteneur au cas où
+
+        // Conteneur pour afficher les mots sélectionnés
+        const selectedContainer = document.createElement("div");
+        selectedContainer.id = `selected-container-${jeuId}`;
+        selectedContainer.className = "selected-container mb-2";
+        wordContainer.parentNode.insertBefore(selectedContainer, wordContainer);
+
+        window.selectedWords = window.selectedWords || {};
+        window.selectedWords[jeuId] = [];
+
+        motsMelanges.forEach(word => {
+            let block = document.createElement("span");
+            block.textContent = word;
+            block.classList.add("word-block");
+            block.onclick = function () { selectWord(jeuId, this, word); };
+            wordContainer.appendChild(block);
+        });
+
+        console.log(`Blocs de mots affichés pour le jeu ${jeuId}`);
+    }
+
+    function selectWord(jeuId, block, word) {
+        if (!window.selectedWords[jeuId].includes(word)) {
+            window.selectedWords[jeuId].push(word);
+            block.classList.add("selected");
+            block.onclick = null;
+
+            let selectedContainer = document.getElementById(`selected-container-${jeuId}`);
+            let selectedBlock = document.createElement("span");
+            selectedBlock.textContent = word;
+            selectedBlock.classList.add("word-block");
+            selectedContainer.appendChild(selectedBlock);
+        }
+    }
+
+    function validateSentence(jeuId, phraseCorrecte) {
+        const feedback = document.getElementById(`feedback-${jeuId}`);
+        let selectedSentence = window.selectedWords[jeuId];
+
+        if (JSON.stringify(selectedSentence) === JSON.stringify(phraseCorrecte)) {
+            feedback.textContent = "✅ Bravo ! Vous avez correctement reconstitué la phrase.";
+            feedback.className = "feedback correct";
+        } else {
+            feedback.textContent = "❌ Incorrect. Essayez encore !";
+            feedback.className = "feedback incorrect";
+        }
+
+        console.log(`Validation pour jeu ${jeuId}:`, selectedSentence, "==", phraseCorrecte);
+    }
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let selectedWords = {}; // Stocke les mots sélectionnés par jeu
+    
+        function selectWord(jeuId, element, word) {
+            if (!selectedWords[jeuId]) {
+                selectedWords[jeuId] = [];
+            }
+    
+            let selectedContainer = document.getElementById(`selected-container-${jeuId}`);
+            let wordContainer = document.getElementById(`word-container-${jeuId}`);
+    
+            // Vérifier si le mot est déjà sélectionné
+            let wordIndex = selectedWords[jeuId].indexOf(word);
+            if (wordIndex === -1) { 
+                // **Sélectionner le mot**
+                selectedWords[jeuId].push(word);
+                element.classList.add("selected");
+                element.onclick = null; // Désactiver le clic sur cet élément
+    
+                // Ajouter au conteneur des mots sélectionnés
+                let selectedBlock = document.createElement("span");
+                selectedBlock.textContent = word;
+                selectedBlock.classList.add("word-block", "selected-block");
+                selectedBlock.onclick = function () {
+                    deselectWord(jeuId, this, word);
+                };
+                selectedContainer.appendChild(selectedBlock);
+            }
+        }
+    
+        function deselectWord(jeuId, element, word) {
+            let wordContainer = document.getElementById(`word-container-${jeuId}`);
+    
+            // Retirer le mot de la liste sélectionnée
+            selectedWords[jeuId] = selectedWords[jeuId].filter(m => m !== word);
+            element.remove(); // Supprimer du conteneur sélectionné
+    
+            // Remettre le mot dans le conteneur des mots mélangés
+            let wordBlock = document.createElement("span");
+            wordBlock.textContent = word;
+            wordBlock.classList.add("word-block");
+            wordBlock.onclick = function () {
+                selectWord(jeuId, this, word);
+            };
+            wordContainer.appendChild(wordBlock);
+        }
+    
+        function validateSentence(jeuId, phraseCorrecte) {
+            const feedback = document.getElementById(`feedback-${jeuId}`);
+            let selectedSentence = selectedWords[jeuId] || [];
+    
+            console.log(`Validation pour jeu ${jeuId}:`, selectedSentence, "==", phraseCorrecte);
+    
+            if (JSON.stringify(selectedSentence) === JSON.stringify(phraseCorrecte)) {
+                feedback.textContent = "✅ Bravo ! Vous avez correctement reconstitué la phrase.";
+                feedback.className = "feedback correct";
+            } else {
+                feedback.textContent = "❌ Incorrect. Essayez encore !";
+                feedback.className = "feedback incorrect";
+            }
+        }
+    
+        // Rendre les fonctions accessibles globalement
+        window.selectWord = selectWord;
+        window.deselectWord = deselectWord;
+        window.validateSentence = validateSentence;
+    });
+    
+</script>
+
+<script>
+    function validateComplétion(jeuId, réponsesCorrectes) {
+        const inputs = document.querySelectorAll(`#dialogue-${jeuId} input`);
+        let toutesCorrectes = true;
+    
+        inputs.forEach((input, index) => {
+            const réponseUtilisateur = input.value.trim().toLowerCase();
+            const réponseCorrecte = réponsesCorrectes[index].toLowerCase();
+    
+            if (réponseUtilisateur === réponseCorrecte) {
+                input.style.borderColor = "green"; // Bonne réponse
+            } else {
+                input.style.borderColor = "red"; // Mauvaise réponse
+                toutesCorrectes = false;
+    
+                // Afficher la bonne réponse après validation
+                const correctAnswer = document.createElement("span");
+                correctAnswer.textContent = ` (${réponsesCorrectes[index]})`;
+                correctAnswer.style.color = "blue"; 
+                correctAnswer.style.fontWeight = "bold";
+    
+                // Vérifier si la bonne réponse n'est pas déjà affichée
+                if (!input.nextElementSibling || input.nextElementSibling.tagName !== "SPAN") {
+                    input.parentNode.insertBefore(correctAnswer, input.nextSibling);
+                }
+            }
+        });
+    
+        // Afficher le feedback général
+        const feedback = document.getElementById(`complétion-feedback-${jeuId}`);
+        if (toutesCorrectes) {
+            feedback.textContent = "✅ Bravo ! Vous avez correctement complété le dialogue.";
+            feedback.className = "feedback correct";
+        } else {
+            feedback.textContent = "❌ Certaines réponses sont incorrectes. Les bonnes réponses sont en bleu.";
+            feedback.className = "feedback incorrect";
+        }
+    }
+    
+</script>
+
+<script>
+    function terminerLecon() {
+        alert("Félicitations ! Vous avez terminé cette leçon.");
+        // Optionnel : Rediriger vers une autre page
+        window.location.href = "{% url 'detail' cours.slug %}";
+    }
+</script>
+
+</body>
+</html>

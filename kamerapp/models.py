@@ -54,22 +54,72 @@ class Chapitre(models.Model):
     def __str__(self):
         return self.titre  # Retourne le titre du chapitre
     
-class Exercice(models.Model):
-    titre = models.CharField(max_length=100, default="vide")
-    cours = models.ForeignKey(Cours, related_name='exercices',on_delete=models.CASCADE, null=True)
-    contenu = models.TextField(default="vide")
-    réponse = models.TextField(default="vide")
-
-    def __str__(self):
-        return self.titre  # Retourne le titre de l'exercice
-    
 class Leçon(models.Model):
     chap = models.ForeignKey(Chapitre, on_delete=models.CASCADE, related_name='lecons', null=True)
     titre = models.CharField(max_length=255, null=True)
     contenu = models.TextField()
+    image_lecon = models.ImageField(upload_to='image_lecon/', default='image_lecon/lesson.gif',  # Chemin vers l'image par défaut
+        null=True,blank=True,max_length=None)
+    intro = models.TextField(default="vide", null=True)
+    def __str__(self):
+        return self.titre
+
+class Vocabulaire(models.Model):
+    leçon = models.ForeignKey(Leçon, on_delete=models.CASCADE, related_name='vocabulaire', null=True, default="vide")
+    français = models.CharField(max_length=255)
+    langue = models.ForeignKey(Langue, related_name='vocabulaire',on_delete=models.CASCADE, null=True)
+    prononciation = models.CharField(max_length=255)
+    audio = models.FileField(upload_to='audio/vocabulaire/', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.français} → {self.langue}"
+
+
+class Dialogue(models.Model):
+    leçon = models.ForeignKey(Leçon, on_delete=models.CASCADE, related_name='dialogues', null=True, default="vide")
+    titre = models.CharField(max_length=255)
+    description = models.TextField()
 
     def __str__(self):
         return self.titre
+
+class LigneDialogue(models.Model):
+    dialogue = models.ForeignKey(Dialogue, on_delete=models.CASCADE, related_name='lignes')
+    personnage = models.CharField(max_length=255)
+    texte = models.TextField()
+    audio = models.FileField(upload_to='audio/dialogues/', null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.personnage}: {self.texte}"
+    
+class Exercice(models.Model):
+    leçon = models.ForeignKey(Leçon, on_delete=models.CASCADE, related_name='exercices', null=True, blank=True)
+    type = models.CharField(max_length=50, choices=[
+        ('traduction', 'Traduction'),
+        ('quiz', 'Quiz'),
+        ('reconstitution', 'Reconstitution de phrase'),
+    ])
+    question = models.TextField(default="vide")
+    réponse = models.TextField(default="vide")
+
+    def __str__(self):
+        return f"{self.type}: {self.question}"
+    
+class Jeu(models.Model):
+    leçon = models.ForeignKey(Leçon, on_delete=models.CASCADE, related_name='jeux', null=True, blank=True)
+    type = models.CharField(max_length=50, choices=[
+        ('reconstitution', 'Reconstitution de phrase'),
+        ('quiz', 'Quiz'),
+        ('association', 'Association de mots'),
+        ('traduction', 'Traduction'),
+        ('complétion', 'Complétion de dialogue')
+    ])
+    instructions = models.TextField()
+    données = models.JSONField()  # Stocke les mots mélangés, les options de quiz, etc.
+
+    def __str__(self):
+        return f"{self.type}: {self.instructions}"
+    
 
 class Progression(models.Model):
     username = models.ForeignKey(CustomUser, on_delete=models.CASCADE)

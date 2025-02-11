@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import CustomUser, Cours, Langue, Quiz, Question, Dictionnaire, Notification, Ressource, Comment, UserScore, Answer, Leçon
+from .models import CustomUser, Cours, Langue, Quiz, Question, Dictionnaire, Notification, Ressource, Comment, UserScore, Answer, Leçon, Vocabulaire, Dialogue, LigneDialogue, Exercice, Jeu
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -8,6 +8,7 @@ from django.db.models import Q
 from .forms import UserUpdateForm, ProfileUpdateForm
 from django.http import JsonResponse
 import json  
+from django.utils.text import slugify
 
 def signin(request):
     if request.method == 'POST':
@@ -111,9 +112,36 @@ def detail(request, slug):
     return render(request, 'plate/cours/detail.html', {'cours': cours, 'dets': dets})
 
 @login_required
-def detail_lecon(request, lecon_id, slug):
-    lecon = get_object_or_404(Leçon, id=lecon_id, chap__cours__slug=slug)
-    return render(request, 'plate/cours/detail_lecon.html', {'lecon': lecon})
+def detail_lecon(request, slug, lecon_id):
+    # Récupérer la leçon
+    lecon = get_object_or_404(Leçon, id=lecon_id)
+
+    # Récupérer le cours via le chapitre de la leçon
+    cours = lecon.chap.cours
+
+    # Vérifie si le cours a un slug
+    if not cours.slug:
+        cours.slug = slugify(f"{cours.titre}-{cours.langue.nomlangue}")
+        cours.save()
+
+    # Récupérer le contenu de la leçon
+    vocabulaire = lecon.vocabulaire.all()
+    dialogues = lecon.dialogues.all()
+    exercices = lecon.exercices.all()
+    jeux = lecon.jeux.all()
+
+    # Débogage : Afficher les jeux dans la console
+    #for jeu in jeux:
+        #print(jeu.données)
+
+    return render(request, 'plate/cours/detail_lecon.html', {
+        'lecon': lecon,
+        'cours': cours,
+        'vocabulaire': vocabulaire,
+        'dialogues': dialogues,
+        'exercices': exercices,
+        'jeux': jeux,
+    })
 
 
 def quiz(request, slug):
