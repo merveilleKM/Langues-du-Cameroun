@@ -161,7 +161,7 @@ class Quiz(models.Model):
     partie = models.CharField(max_length=10, null=True)
     level = models.CharField(max_length=30, null=True)  # e.g., 'Débutant', 'Intermédiaire', 'Avancé'
     langue = models.ForeignKey(Langue, on_delete=models.CASCADE, null=True)  # Référence à la langue
-    slug = models.SlugField(unique=True, blank=True, null=True)
+    slug = models.SlugField(blank=True, null=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -197,7 +197,6 @@ class UserScore(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.quiz.title} : {self.score} points, {self.stars} étoiles"
 
-
 class Expression(models.Model):
     expression = models.CharField(max_length=100)
     texte = models.CharField(max_length=100)
@@ -225,3 +224,18 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"Comment by {self.username} on {self.notification.title}"
+
+class ActiviteRecente(models.Model):
+    TYPE_CHOICES = [
+        ('lesson', 'Cours Terminé'),
+        ('quiz', 'Quiz Répondu'),
+        ('forum', 'Participation au Forum'),
+    ]
+    
+    utilisateur = models.ForeignKey(CustomUser, related_name="activite", on_delete=models.CASCADE, null=True)  # Ajout du champ username
+    type_activite = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    description = models.CharField(max_length=255)
+    date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.utilisateur.username} - {self.get_type_activite_display()}"

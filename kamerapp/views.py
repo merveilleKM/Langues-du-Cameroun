@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from .models import CustomUser, Cours, Langue, Quiz, Question, Dictionnaire, Notification, Ressource, Comment, UserScore, Answer, Leçon, Vocabulaire, Dialogue, LigneDialogue, Exercice, Jeu
+from .models import ActiviteRecente
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
@@ -24,7 +25,7 @@ def signin(request):
             messages.error(request, "Identifiants invalides.")
     return render(request, 'signin.html')
 
-def signup (request):
+def signup(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -32,24 +33,34 @@ def signup (request):
         password = request.POST.get('password')
         langue = request.POST.get('langue')
 
+        # Validation des champs
+        if not username or not email or not password:
+            messages.error(request, "Tous les champs sont obligatoires.")
+            return render(request, 'signup.html')
+
         # Vérification si l'utilisateur existe déjà
         if CustomUser.objects.filter(email=email).exists() or CustomUser.objects.filter(username=username).exists():
             messages.error(request, "Cet email ou nom d'utilisateur est déjà utilisé.")
             return render(request, 'signup.html')
 
         # Création de l'utilisateur
-        user = CustomUser.objects.create_user(
-            username=username,
-            email=email,
-            tel=tel,
-            langue=langue,
-            password=password
-        )
-        user.save()
+        try:
+            user = CustomUser.objects.create_user(
+                username=username,
+                email=email,
+                tel=tel,
+                langue=langue,
+                password=password
+            )
+            user.save()
 
-        # Connexion automatique de l'utilisateur après inscription
-        login(request, user)
-        messages.success(request, "Inscription réussie. Bienvenue !")
+            # Connexion automatique de l'utilisateur après inscription
+            login(request, user)
+            messages.success(request, "Inscription réussie. Bienvenue !")
+            return redirect('cours')  # Redirection après inscription réussie
+        except Exception as e:
+            messages.error(request, f"Une erreur s'est produite lors de la création de l'utilisateur: {e}")
+            return render(request, 'signup.html')
 
     return render(request, 'signup.html')
 
@@ -123,6 +134,13 @@ def detail_lecon(request, slug, lecon_id):
     if not cours.slug:
         cours.slug = slugify(f"{cours.titre}-{cours.langue.nomlangue}")
         cours.save()
+
+    # Enregistrement de l'activité "Leçon Consultée"
+    ActiviteRecente.objects.create(
+         utilisateur=request.user,
+         type_activite='lesson',
+         description=lecon.titre  # On affiche ici le titre de la leçon
+    )
 
     # Récupérer le contenu de la leçon
     vocabulaire = lecon.vocabulaire.all()
@@ -217,6 +235,13 @@ def quiz_detail(request, quiz_id, slug):
     user_score = UserScore.objects.filter(user=request.user, quiz=quiz).first()
     user_stars = user_score.stars if user_score else 0
 
+    # Enregistrement de l'activité "Quiz Répondu"
+    ActiviteRecente.objects.create(
+        utilisateur=request.user,
+        type_activite='quiz',
+        description=quiz.title  # On utilise le titre du quiz
+    )
+
     return render(request, 'plate/cours/quiz_detail.html', {
         'quiz': quiz,
         'questions': questions,
@@ -297,6 +322,14 @@ def add_comment(request, notification_id):
             message=request.POST['message'],
             username=request.user  # Utilisateur connecté
         )
+
+        # Enregistrement de l'activité "Participation dans la Communauté"
+        ActiviteRecente.objects.create(
+            utilisateur=request.user,
+            type_activite='forum',
+            description=f"Participation sur {notification.title}"
+        )
+
         return redirect('communaute')  # Retour à la page communauté après l'ajout
 
     return redirect('communaute')  # En cas de requête GET, redirige simplement
@@ -322,10 +355,11 @@ def search(request):
     }
     return render(request, 'plate/communaute.html', context)
 
+# views.py
 @login_required
 def profil(request):
     user = request.user
-    user_langues = request.user.langues.all()  # Récupérez les langues liées à l'utilisateur
+    user_langues = user.langues.all()
     langues_disponibles = Langue.objects.all()
 
     if request.method == "POST":
@@ -333,13 +367,9 @@ def profil(request):
         if langue_id:
             try:
                 nouvelle_langue = Langue.objects.get(id=langue_id)
-
-                # Ajouter la langue
                 if nouvelle_langue not in user.langues.all():
                     user.langues.add(nouvelle_langue)
                     user.save()
-
-                # Ajouter les cours liés
                 nouveaux_cours = Cours.objects.filter(langue=nouvelle_langue).exclude(id__in=user.cours_suivis.all())
                 if nouveaux_cours.exists():
                     user.cours_suivis.add(*nouveaux_cours)
@@ -349,15 +379,30 @@ def profil(request):
             except Langue.DoesNotExist:
                 messages.error(request, "La langue sélectionnée n'existe pas.")
 
-    # Récupérez les cours associés aux langues de l'utilisateur
     cours = Cours.objects.filter(langue__in=user.langues.all()).distinct()
 
-    return render(request, 'plate/profile.html', {
+    last_quiz = ActiviteRecente.objects.filter(
+        utilisateur=user, type_activite='quiz'
+    ).order_by('-date').first()
+
+    last_lesson = ActiviteRecente.objects.filter(
+        utilisateur=user, type_activite='lesson'
+    ).order_by('-date').first()
+
+    last_forum = ActiviteRecente.objects.filter(
+        utilisateur=user, type_activite='forum'
+    ).order_by('-date').first()
+
+    context = {
         'user_langues': user_langues,
         'user': user,
         'langues_disponibles': langues_disponibles,
         'cours': cours,
-    })
+        'last_quiz': last_quiz,
+        'last_lesson': last_lesson,
+        'last_forum': last_forum,
+    }
+    return render(request, 'plate/profile.html', context)
 
 @login_required
 def update_profile(request):
