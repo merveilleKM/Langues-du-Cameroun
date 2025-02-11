@@ -78,24 +78,36 @@
     </div>
     <div class="card-body">
         <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex align-items-center">
-                <i class="fas fa-check-circle text-success me-3"></i>
-                Terminé : <strong>Introduction au Fulfulde</strong>
-                <span class="ms-auto text-muted">(15 Jan 2025)</span>
-            </li>
+            {% if last_quiz %}
             <li class="list-group-item d-flex align-items-center">
                 <i class="fas fa-pencil-alt text-warning me-3"></i>
-                Quiz répondu : <strong>Initiation au Duala</strong>
-                <span class="ms-auto text-muted">(14 Jan 2025)</span>
+                Quiz : <strong>{{ last_quiz.description }} (Langue : {{ user.langue }})</strong>
+                <span class="ms-auto text-muted">({{ last_quiz.date|date:"d M Y" }})</span>
             </li>
+            {% endif %}
+            {% if last_lesson %}
+            <li class="list-group-item d-flex align-items-center">
+                <i class="fas fa-book-open text-success me-3"></i>
+                Leçon : <strong>{{ last_lesson.description }} (Langue : {{ user.langue }}) </strong>
+                <span class="ms-auto text-muted">({{ last_lesson.date|date:"d M Y" }})</span>
+            </li>
+            {% endif %}
+            {% if last_forum %}
             <li class="list-group-item d-flex align-items-center">
                 <i class="fas fa-comment-dots text-info me-3"></i>
-                Participation : <strong>Forum sur le Bassa</strong>
-                <span class="ms-auto text-muted">(12 Jan 2025)</span>
+                Participation : <strong>{{ last_forum.description }}  </strong>
+                <span class="ms-auto text-muted">({{ last_forum.date|date:"d M Y" }})</span>
             </li>
+            {% endif %}
+            {% if not last_quiz and not last_lesson and not last_forum %}
+            <li class="list-group-item text-center text-muted">
+                Aucune activité récente
+            </li>
+            {% endif %}
         </ul>
     </div>
 </div>
+
 
 <!-- Informations Supplémentaires -->
 <div class="card shadow-sm">
