@@ -10,6 +10,7 @@ from .forms import UserUpdateForm, ProfileUpdateForm
 from django.http import JsonResponse
 import json  
 from django.utils.text import slugify
+from django.core.mail import send_mail
 
 def signin(request):
     if request.method == 'POST':
@@ -54,9 +55,21 @@ def signup(request):
             )
             user.save()
 
+            # Envoyer un email de confirmation à l'utilisateur
+            send_mail(
+                subject="Confirmation de réception de votre message",
+                message=f"Bonjour {username},\n\n"
+                        "Merci de nous avoir contactés ! Nous avons bien reçu votre message et vous "
+                        "répondrons dans les plus brefs délais.\n\n"
+                        "Cordialement,\nLINGUAKAMER",
+                from_email=None,  # Utilise DEFAULT_FROM_EMAIL dans settings.py
+                recipient_list=[email],
+                fail_silently=False,
+            )
+
             # Connexion automatique de l'utilisateur après inscription
             login(request, user)
-            messages.success(request, "Inscription réussie. Bienvenue !")
+            messages.success(request, "Inscription réussie. Bienvenue ! Un email de confirmation vous a été envoyé.")
             return redirect('cours')  # Redirection après inscription réussie
         except Exception as e:
             messages.error(request, f"Une erreur s'est produite lors de la création de l'utilisateur: {e}")
