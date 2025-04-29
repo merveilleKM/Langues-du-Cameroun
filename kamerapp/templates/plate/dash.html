@@ -12,7 +12,7 @@
         <h1>Bienvenue, {{user.username}} 🎉</h1>
         <p>Explorez les langues traditionnelles du Cameroun à votre propre rythme.</p>
         {%for cour in cours%}
-        <a href="{% url 'detail' cour.slug %}" class="btn btn-main">Accéder à mes cours</a>
+        <a href="{% url 'cours' %}" class="btn btn-main">Accéder à mes cours</a>
         {%endfor%}
     </div>
 </div>

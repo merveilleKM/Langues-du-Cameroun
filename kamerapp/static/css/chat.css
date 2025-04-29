@@ -1,0 +1,51 @@
+:root {
+    --main-yellow: #FFB300;
+    --main-black: #000000;
+    --main-white: #FFFFFF;
+    --hover-yellow: #e6a000;
+    --gray-light: #f8f9fa;
+    --main-blue: #f5f799;
+}
+
+/* Styles des messages */
+.message {
+    margin: 10px 0;
+    padding: 12px 16px;
+    border-radius: 18px;
+    max-width: 70%;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.user-message {
+    background: var(--main-yellow);
+    color: var(--main-black);
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.ai-message {
+    background: var(--main-blue);
+    color: var(--main-black);
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+}
+
+#send-btn:hover {
+    background-color: var(--hover-yellow);
+    transition: background-color 0.2s;
+}
+
+#user-input:focus {
+    outline: 2px solid var(--main-yellow);
+    box-shadow: 0 0 4px rgba(255, 179, 0, 0.4);
+}
+
+/* Animation pour les nouveaux messages */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message {
+    animation: fadeIn 0.3s ease-out;
+}

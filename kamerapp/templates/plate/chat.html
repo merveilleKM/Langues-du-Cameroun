@@ -1,0 +1,226 @@
+{% extends "plate/base.html" %}
+{% load static %}
+{% block dash %}
+
+<div class="chat-container" style="max-width: 800px; margin: 20px auto; height: 80vh; display: flex; flex-direction: column; border: 1px solid #ddd; border-radius: 10px;">
+    <!-- En-tête du chat -->
+    <div class="chat-header" style="padding: 15px; background: var(--gray-light); border-bottom: 1px solid #ddd; border-radius: 10px 10px 0 0; display: flex; align-items: center;">
+        <img src="{% static 'images/ai-icon.png' %}" alt="IA" style="width: 30px; height: 30px; margin-right: 10px;">
+        <h3 style="margin: 0; color: var(--main-black);">Assistant IA</h3>
+    </div>
+    
+    <!-- Zone des messages -->
+    <div id="chat-messages" style="flex: 1; overflow-y: auto; padding: 20px; background: var(--main-white);">
+        <!-- Message d'accueil -->
+        <div class="message ai-message">
+            Bonjour ! Je suis votre assistant IA. Comment puis-je vous aider aujourd'hui ?
+        </div>
+    </div>
+    
+    <!-- Zone de saisie -->
+    <div class="chat-input" style="padding: 15px; background: var(--gray-light); border-top: 1px solid #ddd;">
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="user-input" 
+                   style="flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 5px;" 
+                   placeholder="Tapez votre message...">
+            <button id="send-btn" 
+                    style="padding: 10px 20px; background: var(--main-yellow); color: var(--main-black); border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                Envoyer
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --main-yellow: #FFB300;
+        --main-black: #000000;
+        --main-white: #FFFFFF;
+        --hover-yellow: #e6a000;
+        --gray-light: #f8f9fa;
+        --main-blue: #f5f799;
+    }
+    
+    /* Styles des messages */
+    .message {
+        margin: 10px 0;
+        padding: 12px 16px;
+        border-radius: 18px;
+        max-width: 70%;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    
+    .user-message {
+        background: var(--main-yellow);
+        color: var(--main-black);
+        margin-left: auto;
+        border-bottom-right-radius: 5px;
+    }
+    
+    .ai-message {
+        background: var(--main-blue);
+        color: var(--main-black);
+        margin-right: auto;
+        border-bottom-left-radius: 5px;
+    }
+    
+    #send-btn:hover {
+        background-color: var(--hover-yellow);
+        transition: background-color 0.2s;
+    }
+    
+    #user-input:focus {
+        outline: 2px solid var(--main-yellow);
+        box-shadow: 0 0 4px rgba(255, 179, 0, 0.4);
+    }
+    
+    /* Animation pour les nouveaux messages */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message {
+        animation: fadeIn 0.3s ease-out;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        // Focus sur l'input au chargement
+        userInput.focus();
+        
+        function addMessage(message, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        async function handleSend() {
+            const message = userInput.value.trim();
+            if (!message) return;
+            
+            // Ajouter le message utilisateur
+            addMessage(message, true);
+            userInput.value = '';
+            
+            // Afficher un indicateur de chargement
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message ai-message';
+            loadingDiv.innerHTML = '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+            chatMessages.appendChild(loadingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 60000);
+                
+                const response = await fetch('/api/chat/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    
+                    credentials: 'include',
+                    signal: controller.signal,
+                    body: JSON.stringify({ message: message })
+                });
+                
+                clearTimeout(timeoutId);
+                
+                // Supprimer l'indicateur de chargement
+                chatMessages.removeChild(loadingDiv);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addMessage(data.response, false);
+                } else {
+                    const errorText = await response.text();
+                    console.error('Erreur serveur:', errorText);
+                    addMessage("Erreur interne du serveur. Veuillez réessayer.", false);
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                let errorMessage = "Erreur de communication avec le serveur";
+                
+                if (error.name === 'AbortError') {
+                    errorMessage = "La requête a pris trop de temps !";
+                } else if (error instanceof SyntaxError) {
+                    errorMessage = "Réponse invalide du serveur";
+                }
+                
+                chatMessages.removeChild(loadingDiv);
+                addMessage(errorMessage, false);
+            }
+        }
+        
+        // Fonction pour récupérer le cookie CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        sendBtn.addEventListener('click', handleSend);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSend();
+        });
+    });
+</script>
+
+
+<style>
+    /* Style pour l'indicateur de chargement */
+    .typing-indicator {
+        background: var(--main-blue);
+        padding: 12px 16px;
+        border-radius: 18px;
+        width: fit-content;
+    }
+    
+    .typing-indicator span {
+        height: 8px;
+        width: 8px;
+        background-color: #777;
+        border-radius: 50%;
+        display: inline-block;
+        margin: 0 2px;
+        opacity: 0.7;
+        animation: typing 1s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(1) {
+        animation-delay: 0s;
+    }
+    
+    .typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    
+    .typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    
+    @keyframes typing {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+        100% { transform: translateY(0px); }
+    }
+</style>
+{% endblock %}
