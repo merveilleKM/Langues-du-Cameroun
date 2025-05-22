@@ -2,7 +2,7 @@
 
 {% load static %}
 
-{% block dash %}
+{% block cont %}
 
 <!-- Header -->
 <header class="header">
@@ -106,90 +106,3 @@
 
 {% endblock %}
 
-
-
-{% comment %} {% extends "plate/base.html" %}
-
-{% load static %}
-
-{% block dash %}
-
-<!-- Header -->
-<header class="header">
-    <h1>Bienvenue dans la Communauté</h1>
-    <p>Partagez vos idées, posez vos questions et apprenez ensemble.</p>
-</header>
-
-<!-- Search Bar -->
-<div class="search-bar">
-    <input type="text" class="form-control" placeholder="Rechercher un sujet ou un post...">
-</div>
-
-<!-- Add New Post Button -->
-<div class="text-center mt-4">
-    <button class="btn btn-main">Créer un Nouveau Sujet</button>
-</div>
-
-<!-- Community Section -->
-<section class="community-section mt-4">
-
-    <div class="container">
-        <h2 class="text-center mb-4">Dernières Activités</h2>
-
-        <!-- Post -->
-        <div class="post shadow">
-            <h5><i class="fas fa-comment-dots icon"></i>💬 Discussion : Comment progresser rapidement en Fulfulde ?</h5>
-            <p>Partagez vos meilleures astuces et ressources pour apprendre efficacement.</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <button class="btn btn-main">Participer</button>
-                <small class="text-muted">8 réponses</small>
-            </div>
-
-            <!-- Comment Section -->
-            <div class="comment-section mt-3">
-                <h6>Commentaires :</h6>
-                <ul>
-                    <li><strong>Utilisateur1 :</strong> Pratiquer avec des locuteurs natifs est génial !</li>
-                    <li><strong>Utilisateur2 :</strong> Je trouve les podcasts très utiles.</li>
-                </ul>
-
-                <!-- Add Comment -->
-                <div class="comment-input">
-                    <input type="text" placeholder="Ajouter un commentaire..." class="form-control">
-                    <button class="btn btn-main">Envoyer</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Another Post -->
-        <div class="post shadow">
-            <h5><i class="fas fa-book icon"></i>📚 Ressource : Guide de vocabulaire Bassa</h5>
-            <p>Téléchargez ce guide pour enrichir votre vocabulaire en Bassa rapidement.</p>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-                <button class="btn btn-main">Télécharger</button>
-                <small class="text-muted">25 téléchargements</small>
-            </div>
-
-            <!-- Comment Section -->
-            <div class="comment-section mt-3">
-                <h6>Commentaires :</h6>
-                <ul>
-                    <li><strong>Utilisateur3 :</strong> Ce guide est très pratique, merci !</li>
-                </ul>
-
-                <!-- Add Comment -->
-                <div class="comment-input">
-                    <input type="text" placeholder="Ajouter un commentaire..." class="form-control">
-                    <button class="btn btn-main">Envoyer</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add New Post Button -->
-        <div class="text-center mt-4">
-            <button class="btn btn-main">Créer un Nouveau Sujet</button>
-        </div>
-    </div>
-</section>
-
-{% endblock %} {% endcomment %}
